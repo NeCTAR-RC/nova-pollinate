@@ -1,0 +1,6 @@
+WebOb
+PasteDeploy
+six
+python-keystoneclient
+keystonemiddleware
+oslo.middleware
