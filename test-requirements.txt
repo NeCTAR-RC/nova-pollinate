@@ -1,0 +1,6 @@
+testrepository
+hacking
+coverage
+mock
+testtools
+webtest

@@ -1,0 +1,7 @@
+WebOb
+PasteDeploy
+six
+python-keystoneclient
+python-novaclient
+keystonemiddleware
+oslo.middleware
