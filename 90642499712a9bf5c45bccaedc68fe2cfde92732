@@ -1,0 +1,193 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "276e0174_630a2a88",
+        "filename": "files/api-paste.ini",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2019-01-31T23:36:27Z",
+      "side": 1,
+      "message": "maybe call this directory etc as opposed to files?",
+      "revId": "90642499712a9bf5c45bccaedc68fe2cfde92732",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94110947_e0d4720b",
+        "filename": "files/api-paste.ini",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2019-01-31T23:36:27Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 8,
+        "startChar": 20,
+        "endLine": 8,
+        "endChar": 34
+      },
+      "revId": "90642499712a9bf5c45bccaedc68fe2cfde92732",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4ace5e5_21a01762",
+        "filename": "files/vendordata.conf",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2019-01-31T23:36:27Z",
+      "side": 1,
+      "message": "Should this file be called vendordata.conf.sample?",
+      "revId": "90642499712a9bf5c45bccaedc68fe2cfde92732",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3fd68b1_4cd9a3a4",
+        "filename": "tox.ini",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2019-01-31T23:36:27Z",
+      "side": 1,
+      "message": "bad",
+      "range": {
+        "startLine": 10,
+        "startChar": 4,
+        "endLine": 10,
+        "endChar": 19
+      },
+      "revId": "90642499712a9bf5c45bccaedc68fe2cfde92732",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b121ac71_890cd2ad",
+        "filename": "tox.ini",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2019-01-31T23:36:27Z",
+      "side": 1,
+      "message": "add upper contraints",
+      "range": {
+        "startLine": 11,
+        "startChar": 7,
+        "endLine": 11,
+        "endChar": 37
+      },
+      "revId": "90642499712a9bf5c45bccaedc68fe2cfde92732",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "180f6b8e_cdabf60f",
+        "filename": "vendordata.conf",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2019-01-31T23:36:27Z",
+      "side": 1,
+      "message": "Delete me!",
+      "revId": "90642499712a9bf5c45bccaedc68fe2cfde92732",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26f0ea9d_bbaacee2",
+        "filename": "vendordata/nova.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2019-01-31T23:36:27Z",
+      "side": 1,
+      "message": "delete file",
+      "range": {
+        "startLine": 18,
+        "startChar": 12,
+        "endLine": 20,
+        "endChar": 35
+      },
+      "revId": "90642499712a9bf5c45bccaedc68fe2cfde92732",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5337fd93_75ce6c63",
+        "filename": "vendordata/server.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2019-01-31T23:36:27Z",
+      "side": 1,
+      "message": "maybe delete?",
+      "range": {
+        "startLine": 73,
+        "startChar": 10,
+        "endLine": 83,
+        "endChar": 61
+      },
+      "revId": "90642499712a9bf5c45bccaedc68fe2cfde92732",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad009dcc_e9b874c9",
+        "filename": "vendordata/test.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2019-01-31T23:36:27Z",
+      "side": 1,
+      "message": "just use pass",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 37
+      },
+      "revId": "90642499712a9bf5c45bccaedc68fe2cfde92732",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    }
+  ]
+}
