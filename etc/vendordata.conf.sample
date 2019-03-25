@@ -1,6 +1,7 @@
 [DEFAULT]
 api_paste_config = /etc/vendordata/api-paste.ini
 auth_strategy = keystone
+providers = vendordata.providers.cloudstor.CloudStorProvider,vendordata.providers.keystone.KeystoneProvider
 
 [keystone_authtoken]
 auth_url=http://127.0.0.1:5000/

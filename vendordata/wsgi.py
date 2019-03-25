@@ -18,6 +18,7 @@ from oslo_log import log as logging
 
 from paste.deploy import loadapp
 from paste import httpserver
+from paste.translogger import TransLogger
 
 from vendordata import config
 from vendordata import keystone_client
@@ -30,7 +31,8 @@ LOG = logging.getLogger(__name__)
 def main():
     keystone_client.register_keystoneauth_opts(CONF)
 
-    CONF(sys.argv[1:], default_config_files=config.find_config_files())
+    CONF(sys.argv[1:],
+         default_config_files=config.find_config_files())
 
     logging.setup(CONF, 'vendordata')
 
@@ -38,8 +40,9 @@ def main():
     CONF.log_opt_values(LOG, logging.DEBUG)
 
     # Start the web server
-    wsgi_app = loadapp('config:api-paste.ini', relative_to='/etc/vendordata')
-    httpserver.serve(wsgi_app, host=CONF.listen, port=CONF.port,
+    app = loadapp('config:api-paste.ini', relative_to='/etc/vendordata')
+    log_app = TransLogger(app)
+    httpserver.serve(log_app, host=CONF.listen, port=CONF.port,
                      use_threadpool=True)
 
 

@@ -12,21 +12,33 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import contextlib
 import os
 import testtools
 
-from vendordata import config
+from oslo_config import cfg
+from oslo_config import fixture as oslo_fixture
 
-test_dir = os.path.realpath(os.path.join(
-    os.path.dirname(__file__)))
+from vendordata import config
 
 config_file = os.path.realpath(os.path.join(
     os.path.dirname(__file__),
     'tests/vendordata.conf'))
 
 CONF = config.CONF
-CONF([], project='vendordata', default_config_files=[config_file])
+# CONF([], project='vendordata', default_config_files=[config_file])
+
+
+@contextlib.contextmanager
+def nested(*contexts):
+    with contextlib.ExitStack() as stack:
+        yield [stack.enter_context(c) for c in contexts]
 
 
 class TestCase(testtools.TestCase):
-    pass
+
+    def setUp(self):
+        super(TestCase, self).setUp()
+
+        self.conf = self.useFixture(oslo_fixture.Config(cfg.CONF))
+        self.conf.set_config_files([config_file])

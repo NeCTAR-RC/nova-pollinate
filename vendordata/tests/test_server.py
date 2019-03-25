@@ -25,10 +25,12 @@ from paste.deploy import loadapp
 import webob.exc
 
 from vendordata import test
-from vendordata import keystone_client  # noqa
 from vendordata.tests import fakes
 
 
+@mock.patch('vendordata.keystone.get_client', new=mock.Mock())
+@mock.patch('vendordata.utils.get_providers',
+            return_value=fakes.FAKE_PROVIDERS)
 class TestServer(test.TestCase):
 
     @staticmethod
@@ -48,19 +50,14 @@ class TestServer(test.TestCase):
 
         return token
 
-    def load_app(self, cloudstor_creds=None):
-        with mock.patch('vendordata.keystone_client') as mock_keystone:
-            # default fake project and creds
-            mock_keystone.get_credentials.return_value = cloudstor_creds
+    def load_app(self):
+        # create our app. webtest gives us a callable interface to it
+        app = loadapp('config:test.ini#vendordata',
+                      relative_to=os.path.dirname(__file__))
 
-            # create our app. webtest gives us a callable interface to it
-            name = 'vendordata'
-            test_dir = os.path.dirname(__file__)
-            app = loadapp('config:test.ini#%s' % name, relative_to=test_dir)
-
-            # load your wsgi app here, wrapped in auth_token middleware
-            service = auth_token.AuthProtocol(app, {})
-            return webtest.TestApp(service)
+        # load your wsgi app here, wrapped in auth_token middleware
+        service = auth_token.AuthProtocol(app, {})
+        return webtest.TestApp(service)
 
     def setUp(self):
         super(TestServer, self).setUp()
@@ -73,50 +70,32 @@ class TestServer(test.TestCase):
         self.token = self.create_token()
         self.token_id = self.auth_token_fixture.add_token(self.token)
 
-    def test_server_with_creds(self):
-        creds = fakes.CLOUDSTOR_CREDS
-
-        app = self.load_app(cloudstor_creds=creds)
-        response = app.post_json('/', fakes.METADATA,
-                                 headers={'X-Auth-Token': self.token_id},
-                                 expect_errors=True)
+    def test_server_with_creds(self, mock_get_providers):
+        app = self.load_app()
+        response = app.post_json(
+            '/', fakes.METADATA,
+            headers={'X-Auth-Token': self.token_id},
+            expect_errors=True)
 
         expected = {
-            'cloudstor': {
-                'password': creds.get('password'),
-                'username': creds.get('username'),
-            },
+            'fake_provider1': {'foo': 'bar'},
+            'fake_provider2': {'password': 'world', 'username': 'hello'}
         }
         self.assertEqual(expected, response.json)
         self.assertEqual(webob.exc.HTTPOk.code, response.status_int)
 
-    def test_server_no_creds(self):
-        creds = None
-
-        app = self.load_app(cloudstor_creds=creds)
-        response = app.post_json('/', fakes.METADATA,
-                                 headers={'X-Auth-Token': self.token_id})
-
-        expected = {}
-        self.assertEqual(expected, response.json)
-        self.assertEqual(webob.exc.HTTPOk.code, response.status_int)
-
-    def test_server_bad_auth(self):
-        creds = fakes.CLOUDSTOR_CREDS
-
-        app = self.load_app(cloudstor_creds=creds)
+    def test_server_bad_auth(self, mock_get_providers):
+        app = self.load_app()
         response = app.post_json('/', fakes.METADATA,
                                  headers={'X-Auth-Token': 'bad'},
                                  expect_errors=True)
         self.assertEqual(webob.exc.HTTPUnauthorized.code, response.status_int)
 
-    def test_server_project_not_given(self):
-        creds = None
-
+    def test_server_project_not_given(self, mock_get_providers):
         metadata = dict(fakes.METADATA)
         del metadata['project-id']
 
-        app = self.load_app(cloudstor_creds=creds)
+        app = self.load_app()
         response = app.post_json('/', metadata,
                                  headers={'X-Auth-Token': self.token_id},
                                  expect_errors=True)
