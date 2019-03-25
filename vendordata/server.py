@@ -1,6 +1,4 @@
-# Copyright 2010 United States Government as represented by the
-# Administrator of the National Aeronautics and Space Administration.
-# All Rights Reserved.
+# Copyright 2018 Australian Research Data Commons
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
@@ -23,7 +21,8 @@ from webob import Response
 from oslo_config import cfg
 from oslo_log import log as logging
 
-from vendordata import keystone_client
+from vendordata import keystone
+from vendordata import utils
 
 CONF = cfg.CONF
 LOG = logging.getLogger(__name__)
@@ -32,22 +31,7 @@ LOG = logging.getLogger(__name__)
 class Application(object):
 
     def __init__(self):
-        self._keystone_client = None
-
-    def _log(self, req, resp, data=None):
-        log = []
-        log.append(req.remote_addr or 'unknown')
-        log.append('"{} {}{}"'.format(req.method.upper(),
-                                      req.script_name,
-                                      req.path_info))
-        if resp:
-            log.append('status: {}'.format(resp.status_code))
-
-        if data:
-            log.append('instance-id: {}'.format(data.get('instance-id')))
-            log.append('project-id: {}'.format(data.get('project-id')))
-
-        LOG.info(' '.join(log))
+        self.keystone_client = keystone.get_client()
 
     @wsgify
     def __call__(self, req):
@@ -56,6 +40,7 @@ class Application(object):
             msg = ("Keystone middleware HTTP_X_IDENTITY_STATUS header "
                    "not found in request")
             return webob.exc.HTTPUnauthorized(msg)
+
         if identity_status != 'Confirmed':
             msg = 'User is not authenticated'
             LOG.warning(msg)
@@ -68,31 +53,35 @@ class Application(object):
                 LOG.warning(msg)
                 raise webob.exc.HTTPBadRequest(explanation=msg)
 
-            indata = json.loads(data.decode('utf-8'))
+            context = json.loads(data)
 
-            if 'project-id' not in indata:
+            if 'project-id' not in context:
                 msg = 'Project ID value not given'
                 LOG.warning(msg)
                 raise webob.exc.HTTPBadRequest(explanation=msg)
 
             result = {}
 
-            # CloudStor config from Keystone
-            creds = keystone_client.get_credentials(indata['project-id'])
-            if creds:
-                result['cloudstor'] = creds
+            for provider in utils.get_providers(
+                    context, self.keystone_client):
+                try:
+                    result[provider.name] = provider.run()
+                except Exception:
+                    LOG.warning("Failed to run provider: %s", provider,
+                                exc_info=True)
 
+            result_json = json.dumps(result)
             resp = Response(status=200,
                             content_type='application/json',
-                            body=json.dumps(result),
+                            body=result_json,
                             charset='UTF-8')
-            self._log(req, resp=resp, data=indata)
+            utils.log_request(req, resp, data=context)
             return resp
 
         except webob.exc.WSGIHTTPException as e:
             raise e
         except Exception as e:
-            LOG.warning(e)
+            LOG.warning(e, exc_info=True)
             raise webob.exc.HTTPInternalServerError(explanation=e)
 
 

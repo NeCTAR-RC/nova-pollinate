@@ -1,4 +1,4 @@
-# Copyright 2016 Red Hat, Inc.
+# Copyright 2018 Australian Research Data Commons
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
@@ -28,6 +28,9 @@ service_opts = [
     cfg.PortOpt('port',
                 default=8912,
                 help='Port to listen on'),
+    cfg.ListOpt('providers',
+                default=[],
+                help='Providers to load'),
 ]
 
 

@@ -1,4 +1,4 @@
-# Copyright 2016 Red Hat, Inc.
+# Copyright 2018 Australian Research Data Commons
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
@@ -11,8 +11,6 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-
-import json
 
 from keystoneauth1 import exceptions as keystone_exception
 from keystoneauth1 import loading as ks_loading
@@ -84,18 +82,4 @@ def get_user(user_id):
     try:
         return ks.users.get(user_id)
     except keystone_exception.NotFound:
-        return None
-
-
-def get_credentials(project_id):
-    try:
-        ks = get_client()
-    except cfg.NoSuchOptError:
-        return None
-
-    try:
-        creds = ks.credentials.list(type='cloudstor')
-        data = next(c.blob for c in creds if c.project_id == project_id)
-        return json.loads(data)
-    except StopIteration:
         return None
