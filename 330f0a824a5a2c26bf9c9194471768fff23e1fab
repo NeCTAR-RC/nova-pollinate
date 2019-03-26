@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d1ce1ec_d04f9364",
+        "filename": "tox.ini",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1000104
+      },
+      "writtenOn": "2019-03-26T00:13:32Z",
+      "side": 1,
+      "message": "why are we dropping minversion?",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 2,
+        "endChar": 16
+      },
+      "revId": "330f0a824a5a2c26bf9c9194471768fff23e1fab",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e6bf0c5_605f98af",
+        "filename": "vendordata/keystone.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000104
+      },
+      "writtenOn": "2019-03-26T00:13:32Z",
+      "side": 1,
+      "message": "2019? :)",
+      "range": {
+        "startLine": 1,
+        "startChar": 12,
+        "endLine": 1,
+        "endChar": 16
+      },
+      "revId": "330f0a824a5a2c26bf9c9194471768fff23e1fab",
+      "serverId": "f182a8af-62ca-4ceb-ab81-14f8fec9c6c5",
+      "unresolved": true
+    }
+  ]
+}
