@@ -1,6 +1,4 @@
-testrepository
+flask_testing
+stestr
 hacking
 coverage
-mock
-testtools
-webtest

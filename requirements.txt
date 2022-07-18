@@ -1,7 +1,9 @@
-WebOb
-PasteDeploy
-six
+pbr
 python-keystoneclient
-python-novaclient
+keystoneauth1
 keystonemiddleware
 oslo.middleware
+oslo.config
+oslo.context
+oslo.log
+Flask
