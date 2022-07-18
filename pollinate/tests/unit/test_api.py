@@ -11,15 +11,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import flask_testing
-
-from pollinate import app
+from pollinate.tests.unit import base
 
 
-class TestCase(flask_testing.TestCase):
+class TestAPI(base.TestCase):
 
-    def create_app(self):
-        return app.create_app({
-            'SECRET_KEY': 'secret',
-            'TESTING': True,
-        })
+    def test_api(self):
+        pass

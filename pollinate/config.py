@@ -14,7 +14,6 @@
 import copy
 import operator
 import socket
-import sys
 
 from keystoneauth1 import loading as ks_loading
 from oslo_config import cfg
@@ -71,7 +70,6 @@ def setup_logging(conf):
 
     logging.setup(conf, product_name)
     LOG.info("Logging enabled!")
-    #LOG.debug("command line: %s", " ".join(sys.argv))
 
 
 # Used by oslo-config-generator entry point

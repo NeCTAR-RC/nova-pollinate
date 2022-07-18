@@ -1,16 +1,17 @@
 PROJECT=nova-pollinate
 REPO=registry.rc.nectar.org.au/nectar
 
-SHA=$(shell git rev-parse --verify --short HEAD)
-TAG_PREFIX=
-IMAGE_TAG := $(if $(TAG),$(TAG),$(TAG_PREFIX)$(SHA))
+DESCRIBE=$(shell git describe --tags --always)
+IMAGE_TAG := $(if $(TAG),$(TAG),$(DESCRIBE))
 IMAGE=$(REPO)/$(PROJECT):$(IMAGE_TAG)
 BUILDER=docker
 BUILDER_ARGS=
 
 
 build:
-	$(BUILDER) build $(BUILDER_ARGS) -t $(IMAGE) .
+	echo "Derived image tag: $(DESCRIBE)"
+	echo "Actual image tag: $(IMAGE_TAG)"
+	$(BUILDER) build -f docker/Dockerfile $(BUILDER_ARGS) -t $(IMAGE) .
 
 push:
 	$(BUILDER) push $(IMAGE)

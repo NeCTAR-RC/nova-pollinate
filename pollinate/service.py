@@ -16,17 +16,10 @@ import yaml
 
 from flask import abort
 from flask import Blueprint
-from flask import current_app
-from flask import json
-from flask import make_response
-from flask import redirect
 from flask import request
-from flask import session
 
 from oslo_log import log as logging
 
-from pollinate import clients
-from pollinate import keystone
 from pollinate import utils
 
 
@@ -37,9 +30,6 @@ bp = Blueprint('service', __name__)
 
 @bp.route('/', methods=['POST'])
 def pollinate():
-    ks_session = current_app.ks_session
-    keystone_client = clients.get_keystone_client(ks_session)
-
     identity_status = request.headers.get('X-Identity-Status')
     if not identity_status:
         msg = ("X-Identity-Status header not found in request. "

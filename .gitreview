@@ -2,3 +2,4 @@
 host=review.rc.nectar.org.au
 port=29418
 project=NeCTAR-RC/nova-pollinate.git
+defaultbranch=master

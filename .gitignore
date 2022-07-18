@@ -1,8 +1,63 @@
+*.py[cod]
+
+# C extensions
+*.so
+
+# Packages
+*.egg
+*.egg-info
+dist
 build
-files/join.conf
-tools/lintstack.head.py
-*.pyc
-*.egg-info/
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+
+# Installer logs
+pip-log.txt
+logs/*
+
+# Unit test / coverage reports
+.coverage/*
+.coverage
+.coverage*
+.cache
 .tox
-.testrepository
+nosetests.xml
+htmlcov
+.testrepository/*
+.eggs/*
+.venv*
+cover/*
+coverage.xml
+.stestr/*
+
+# Translations
+*.mo
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
+
+# Complexity
+output/*.html
+output/*/index.html
+
+# Sphinx
+docs/_build
+
+# vs code
+.vscode
+
+# Editors
+.#*
+*~
+
+# Custom
 .env

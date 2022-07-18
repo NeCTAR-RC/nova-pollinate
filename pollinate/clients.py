@@ -13,8 +13,6 @@
 
 from keystoneclient.v3 import client as ks_client
 
-#from openstack import connection
-
 from oslo_config import cfg
 from oslo_log import log as logging
 
@@ -25,7 +23,3 @@ CONF = cfg.CONF
 
 def get_keystone_client(session):
     return ks_client.Client(session=session)
-
-
-#def get_openstack_client(session):
-#    return connection.Connection(session=session)
