@@ -32,26 +32,27 @@ bp = Blueprint('service', __name__)
 def pollinate():
     identity_status = request.headers.get('X-Identity-Status')
     if not identity_status:
-        msg = ("X-Identity-Status header not found in request. "
-               "Is Keystone auth middleware configured?")
+        msg = ('X-Identity-Status header not found in request. '
+               'Is Keystone auth middleware configured?')
         LOG.error(msg)
         abort(401, msg)
 
     if identity_status != 'Confirmed':
-        msg = "Nova vendordata_dynamic_auth user is not authenticated"
+        msg = 'Nova vendordata_dynamic_auth user is not authenticated'
         LOG.error(msg)
         abort(401, msg)
 
     try:
         if not request.data:
-            msg = "No input data provided by Nova"
+            msg = 'No input data provided by Nova'
             LOG.warning(msg)
             abort(400, msg)
 
         context = request.json
+        LOG.debug('Nova input data: %s' % context)
 
         if 'project-id' not in context:
-            msg = "Project ID value not provided by Nova"
+            msg = 'Project ID value not provided by Nova'
             LOG.warning(msg)
             abort(400, msg)
 
@@ -62,7 +63,9 @@ def pollinate():
         for provider in utils.get_providers(context):
             try:
                 # Run the provider
+                LOG.debug('Running provider: %s' % provider.name)
                 output = provider.run()
+                LOG.debug('Provider %s output: %s' % (provider.name, output))
                 if output:
                     # Strip out any cloud-init config for processing later
                     if 'cloud-config' in output:

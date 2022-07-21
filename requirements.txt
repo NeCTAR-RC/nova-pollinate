@@ -6,4 +6,5 @@ oslo.middleware
 oslo.config
 oslo.context
 oslo.log
+python-dotenv
 Flask

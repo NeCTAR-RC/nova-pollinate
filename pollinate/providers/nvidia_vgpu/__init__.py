@@ -45,8 +45,9 @@ class NvidiaVGPUProvider(PollinateProvider):
         project = keystone_client.projects.get(self.context['project-id'])
 
         token = None
-        if hasattr(project, 'compute_zones'):
-            zones = project.compute_zones.split(',')
+        compute_zones = getattr(project, 'compute_zones', None)
+        if compute_zones:
+            zones = compute_zones.split(',')
             if any([z.startswith('monash') for z in zones]):
                 token = self.get_license('monash')
         else:

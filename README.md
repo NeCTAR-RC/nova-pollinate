@@ -59,7 +59,7 @@ URL details, such as:
 ```
 [api]
 vendordata_providers = DynamicJSON
-vendordata_dynamic_targets = 'nectar@http://127.0.0.1:8912/v1/'
+vendordata_dynamic_targets = 'nectar@http://127.0.0.1:8612/'
 ```
 
 When using Keystone authentication (default), you'll also need to provide
@@ -84,9 +84,10 @@ project_domain_name = < service project domain >
 
 ### Testing
 
+Environment variables will be loaded from .env in the project root directory
+
 ```
-export FLASK_APP=wsgi
-export FLASK_DEBUG=1
+cd pollinate
 flask run
 ```
 
@@ -96,5 +97,5 @@ curl -X POST -H "X-Auth-Token: $OS_TOKEN" \
     -H "HTTP_X_IDENTITY_STATUS: Confirmed" \
     -H "Content-Type: application/json" \
     --data '{"project-id": "c64856ec10154662a7fce6e0a36be242"}' \
-    http://localhost:5000/
+    http://localhost:8612/
 ```
