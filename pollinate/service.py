@@ -11,11 +11,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import yaml
 
 from flask import abort
 from flask import Blueprint
+from flask import json
 from flask import request
 
 from oslo_log import log as logging
