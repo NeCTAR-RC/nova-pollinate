@@ -16,6 +16,8 @@ import os
 
 from flask import current_app
 
+from glanceclient import exc as glance_exc
+
 from oslo_log import log as logging
 
 from pollinate import clients
@@ -42,7 +44,22 @@ class NvidiaVGPUProvider(PollinateProvider):
     def run(self):
         ks_session = current_app.ks_session
         keystone_client = clients.get_keystone_client(ks_session)
+        glance_client = clients.get_glance_client(ks_session)
+
         project = keystone_client.projects.get(self.context['project-id'])
+
+        try:
+            image = glance_client.images.get(self.context['image-id'])
+        except glance_exc.HTTPNotFound:
+            LOG.warning('Image %s not found' % self.context['image-id'])
+            return
+
+        # Require the nectar_vpu property on the image to release
+        # the license token
+        if not image.get('nectar_vpu'):
+            LOG.warning('nectar_vpu property not set on image %s (%s)',
+                      image.id, image.name)
+            return
 
         token = None
         compute_zones = getattr(project, 'compute_zones', None)

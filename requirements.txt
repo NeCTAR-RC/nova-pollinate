@@ -1,4 +1,5 @@
 pbr
+python-glanceclient
 python-keystoneclient
 keystoneauth1
 keystonemiddleware

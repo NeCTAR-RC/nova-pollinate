@@ -11,6 +11,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from glanceclient import client as glance_client
 from keystoneclient.v3 import client as ks_client
 
 from oslo_config import cfg
@@ -23,3 +24,7 @@ CONF = cfg.CONF
 
 def get_keystone_client(session):
     return ks_client.Client(session=session)
+
+
+def get_glance_client(session):
+    return glance_client.Client('2', session=session)
