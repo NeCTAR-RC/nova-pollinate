@@ -54,10 +54,10 @@ class NvidiaVGPUProvider(PollinateProvider):
             LOG.warning('Image %s not found' % self.context['image-id'])
             return
 
-        # Require the nectar_vpu property on the image to release
+        # Require the nectar_vgpu property on the image to release
         # the license token
-        if not image.get('nectar_vpu'):
-            LOG.warning('nectar_vpu property not set on image %s (%s)',
+        if not image.get('nectar_vgpu'):
+            LOG.warning('nectar_vgpu property not set on image %s (%s)',
                       image.id, image.name)
             return
 
