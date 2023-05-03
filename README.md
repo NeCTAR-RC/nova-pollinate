@@ -87,8 +87,14 @@ project_domain_name = < service project domain >
 Environment variables will be loaded from .env in the project root directory
 
 ```
-cd pollinate
+workon pollinate
+pip install -r requirements.txt
 flask run
+```
+
+Load the dev admin credentials
+```
+chcreds coreservices/development/admin
 ```
 
 ```

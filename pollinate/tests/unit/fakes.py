@@ -11,10 +11,28 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from pollinate.tests.unit import base
+import copy
 
 
-class TestAPI(base.TestCase):
+PROJECT_DATA = {
+    'project-id': 'fake-project-id',
+    'instance-id': 'fake-instance-id',
+    'image-id': 'fake-image-id',
+    'user-data': 'user-data',
+    'hostname': 'fake-hostname',
+    'metadata': 'fake-metadata',
+}
 
-    def test_api(self):
-        pass
+
+class FakeProject(object):
+
+    def __init__(self, id='dummy', name='MyProject',
+                 enabled=True, **kwargs):
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+        self.id = id
+        self.name = name
+        self.enabled = enabled
+
+    def to_dict(self):
+        return copy.copy(self.__dict__)

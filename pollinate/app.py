@@ -64,8 +64,9 @@ def create_app(test_config=None, conf_file=None, init_config=True):
     app.wsgi_app = healthcheck.Healthcheck(app.wsgi_app)
     app.wsgi_app = request_id.RequestId(app.wsgi_app)
 
-    app.wsgi_app = keystone.KeystoneContext(app.wsgi_app)
-    app.wsgi_app = keystone.SkippingAuthProtocol(app.wsgi_app, {})
+    if CONF.auth_strategy == 'keystone':
+        app.wsgi_app = keystone.KeystoneContext(app.wsgi_app)
+        app.wsgi_app = keystone.SkippingAuthProtocol(app.wsgi_app, {})
 
     # Shared keystone session
     app.ks_session = keystone.KeystoneSession().get_session()

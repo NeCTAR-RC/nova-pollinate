@@ -11,15 +11,29 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import flask_testing
+from oslo_config import cfg
+import testtools
 
 from pollinate import app
 
 
-class TestCase(flask_testing.TestCase):
+CONF = cfg.CONF
+
+
+class TestCase(testtools.TestCase):
+
+    def setUp(self):
+        super(TestCase, self).setUp()
+        self.override_config('auth_strategy', 'noauth')
+        self.app = self.create_app()
 
     def create_app(self):
         return app.create_app({
-            'SECRET_KEY': 'secret',
+            'DEBUG': False,
             'TESTING': True,
         })
+
+    def override_config(self, name, override, group=None):
+        """Cleanly override CONF variables."""
+        CONF.set_override(name, override, group)
+        self.addCleanup(CONF.clear_override, name, group)

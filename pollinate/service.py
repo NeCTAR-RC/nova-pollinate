@@ -17,11 +17,10 @@ from flask import abort
 from flask import Blueprint
 from flask import json
 from flask import request
-
 from oslo_log import log as logging
+from werkzeug.exceptions import HTTPException
 
 from pollinate import utils
-
 
 LOG = logging.getLogger(__name__)
 
@@ -36,7 +35,6 @@ def pollinate():
                'Is Keystone auth middleware configured?')
         LOG.error(msg)
         abort(401, msg)
-
     if identity_status != 'Confirmed':
         msg = 'Nova vendordata_dynamic_auth user is not authenticated'
         LOG.error(msg)
@@ -87,6 +85,11 @@ def pollinate():
         resp = json.jsonify(result)
         return resp
 
+    except HTTPException:
+        # Simply return any raised aborts
+        raise
+
     except Exception as e:
+        # Catch any other exceptions
         LOG.warning(e, exc_info=True)
-        raise abort(500, e)
+        abort(500, e)
