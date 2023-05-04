@@ -8,7 +8,8 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends build-essential gcc && \
     ls /app && \
     python -m pip install -c https://releases.openstack.org/constraints/upper/zed -r /app/requirements.txt && \
-    python -m pip install -c https://releases.openstack.org/constraints/upper/zed .
+    python -m pip install -c https://releases.openstack.org/constraints/upper/zed . && \
+    python -m pip install -c https://releases.openstack.org/constraints/upper/zed gunicorn
 
 FROM python:3.10-slim-bullseye AS release
 COPY --from=build /venv /venv
