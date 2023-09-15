@@ -29,7 +29,7 @@ class TestCase(testtools.TestCase):
 
     def create_app(self):
         return app.create_app({
-            'DEBUG': False,
+            'DEBUG': False,  # Set to True for test debugging
             'TESTING': True,
         })
 

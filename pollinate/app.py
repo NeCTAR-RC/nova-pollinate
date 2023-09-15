@@ -21,9 +21,11 @@ from oslo_log import log as logging
 from oslo_middleware import healthcheck
 from oslo_middleware import request_id
 
-from pollinate import service
 from pollinate import config
 from pollinate import keystone
+from pollinate import providers
+from pollinate import secrets
+from pollinate import service
 
 
 CONF = cfg.CONF
@@ -70,5 +72,11 @@ def create_app(test_config=None, conf_file=None, init_config=True):
 
     # Shared keystone session
     app.ks_session = keystone.KeystoneSession().get_session()
+
+    # Vault login
+    app.secrets = secrets.PollinateSecrets()
+
+    # Load providers
+    app.providers = providers.PollinateProvider.load()
 
     return app

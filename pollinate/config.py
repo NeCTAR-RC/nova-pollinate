@@ -36,19 +36,31 @@ default_opts = [
                 help='Providers to load'),
 ]
 
+vault_opts = [
+    cfg.StrOpt('url',
+               help='Vault URL'),
+    cfg.StrOpt('role',
+               help='Vault role. Should be k8s for Kubernetes'),
+    cfg.StrOpt('token',
+               help='Vault token. Should be provided for token auth'),
+    cfg.StrOpt('path',
+               help='Vault path'),
+]
+
 flask_opts = [
     cfg.StrOpt('secret_key',
-               help="Flask secret key",
+               help='Flask secret key',
                secret=True),
     cfg.StrOpt('host',
-               help="The host or IP address to bind to",
+               help='The host or IP address to bind to',
                default='0.0.0.0'),
     cfg.IntOpt('port',
-               help="The port to listen on",
+               help='The port to listen on',
                default=8612),
 ]
 
 cfg.CONF.register_opts(flask_opts, group='flask')
+cfg.CONF.register_opts(vault_opts, group='vault')
 cfg.CONF.register_opts(default_opts)
 
 logging.register_options(cfg.CONF)

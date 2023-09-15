@@ -12,45 +12,47 @@
 #    under the License.
 
 import json
-import os
 
 from unittest import mock
 
+from pollinate import secrets
 from pollinate.tests.unit import base
 from pollinate.tests.unit import fakes
 
 
+@mock.patch.object(secrets.PollinateSecrets, 'get')
 @mock.patch('pollinate.clients.get_keystone_client')
 class TestNvidiaGPUProvider(base.TestCase):
 
     def setUp(self):
+        self.override_config('providers', 'nvidia_vgpu')
         super(TestNvidiaGPUProvider, self).setUp()
-        self.override_config(
-            'providers', 'pollinate.providers.nvidia_vgpu.NvidiaVGPUProvider')
 
-    @mock.patch.dict(os.environ, {'LICENSE_TOKEN_ARDC': 'foo'})
-    def test_nvidia_gpu_token(self, mock_keystone_client):
+    def test_nvidia_gpu_token_ok(self, mock_keystone_client, mock_secrets_get):
         with self.app.test_client() as client:
+            mock_secrets_get.return_value = 'foo'
             ks = mock_keystone_client.return_value
             ks.projects.get.return_value = fakes.FakeProject()
 
             response = client.post('/',
                 content_type='application/json',
-                data=json.dumps(fakes.PROJECT_DATA),
+                data=json.dumps(fakes.NOVA_VENDORDATA_CONTEXT),
                 headers={'X-Identity-Status': 'Confirmed'})
 
             resp_data = {'nvidia_vgpu': {'license_token': 'foo'}}
             self.assertEqual(response.json, resp_data)
             self.assertEqual(response.status_code, 200)
 
-    def test_nvidia_gpu_token_not_found(self, mock_keystone_client):
+    def test_nvidia_gpu_token_not_found(self, mock_keystone_client,
+                                        mock_secrets_get):
         with self.app.test_client() as client:
+            mock_secrets_get.side_effect = KeyError()
             ks = mock_keystone_client.return_value
             ks.projects.get.return_value = fakes.FakeProject()
 
             response = client.post('/',
                 content_type='application/json',
-                data=json.dumps(fakes.PROJECT_DATA),
+                data=json.dumps(fakes.NOVA_VENDORDATA_CONTEXT),
                 headers={'X-Identity-Status': 'Confirmed'})
 
             # TODO(andy): Work out how to test for the thrown Exception
@@ -58,16 +60,16 @@ class TestNvidiaGPUProvider(base.TestCase):
             self.assertEqual(response.json, {})
             self.assertEqual(response.status_code, 200)
 
-    @mock.patch.dict(os.environ, {'LICENSE_TOKEN_ARDC': 'foo'})
-    @mock.patch.dict(os.environ, {'LICENSE_TOKEN_MONASH': 'baz'})
-    def test_nvidia_gpu_token_monash(self, mock_keystone_client):
+    def test_nvidia_gpu_token_monash(self, mock_keystone_client,
+                                     mock_secrets_get):
         with self.app.test_client() as client:
+            mock_secrets_get.return_value = 'baz'
             ks = mock_keystone_client.return_value
             ks.projects.get.return_value = fakes.FakeProject(
                 compute_zones='monash-02')
             response = client.post('/',
                 content_type='application/json',
-                data=json.dumps(fakes.PROJECT_DATA),
+                data=json.dumps(fakes.NOVA_VENDORDATA_CONTEXT),
                 headers={'X-Identity-Status': 'Confirmed'})
 
             resp_data = {'nvidia_vgpu': {'license_token': 'baz'}}

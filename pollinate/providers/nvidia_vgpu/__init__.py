@@ -12,8 +12,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import os
-
 from flask import current_app
 from oslo_log import log as logging
 
@@ -26,23 +24,21 @@ LOG = logging.getLogger(__name__)
 
 class NvidiaVGPUProvider(PollinateProvider):
 
-    def __init__(self, context):
-        super(NvidiaVGPUProvider, self).__init__(context)
-        self.name = 'nvidia_vgpu'
+    name = 'nvidia_vgpu'
 
     def get_license(self, name):
-        license_token_name = 'LICENSE_TOKEN_{}'.format(name.upper())
-        value = os.environ.get(license_token_name)
+        vault_key = 'LICENSE_TOKEN_{}'.format(name.upper())
+        value = current_app.secrets.get(vault_key)
         if not value:
             raise Exception(
-                'License value for {} not found!'.format(license_token_name))
+                'License value for {} not found!'.format(vault_key))
         return value
 
-    def run(self):
+    def run(self, context):
         ks_session = current_app.ks_session
         keystone_client = clients.get_keystone_client(ks_session)
 
-        project = keystone_client.projects.get(self.context['project-id'])
+        project = keystone_client.projects.get(context['project-id'])
 
         # National ARDC license
         token = self.get_license('ardc')
