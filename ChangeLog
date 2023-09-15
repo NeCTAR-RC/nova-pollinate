@@ -1,0 +1,14 @@
+CHANGES
+=======
+
+* Add missing gunicorn pip install
+* Fix docker-run for virtualenv
+* Add unit tests, fix vgpu logic and upgrade container build
+* Fix typo for nova pollinate vgpu image propery name
+* Require vgpu image property for license
+* Fix compute host handling and increase logging
+* Fix JSON
+* Fix flake8 testing and clean our old leftover unit tests
+* Update to use Flask, Docker and support vGPU
+* Split out providers
+* first commit

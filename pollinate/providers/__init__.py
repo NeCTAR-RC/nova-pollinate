@@ -12,6 +12,15 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from pkg_resources import iter_entry_points
+
+from oslo_config import cfg
+from oslo_log import log as logging
+
+
+CONF = cfg.CONF
+LOG = logging.getLogger(__name__)
+
 
 class PollinateProviderException(Exception):
     pass
@@ -19,9 +28,15 @@ class PollinateProviderException(Exception):
 
 class PollinateProvider(object):
 
-    def __init__(self, context):
-        self.name = None
-        self.context = context
+    @classmethod
+    def load(cls):
+        providers = []
+        entry_points = iter_entry_points(group='pollinate.providers')
+        LOG.debug('Found entrypoints: %s', entry_points)
+        for entry_point in entry_points:
+            if entry_point.name in CONF.providers:
+                providers.append(entry_point.load())
+        return providers
 
     def run(self):
         raise PollinateProviderException('Not Implemented')

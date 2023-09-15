@@ -13,6 +13,7 @@
 
 from glanceclient import client as glance_client
 from keystoneclient.v3 import client as ks_client
+from novaclient import client as nova_client
 
 from oslo_config import cfg
 from oslo_log import log as logging
@@ -28,3 +29,7 @@ def get_keystone_client(session):
 
 def get_glance_client(session):
     return glance_client.Client('2', session=session)
+
+
+def get_nova_client(session):
+    return nova_client.Client('2', session=session)

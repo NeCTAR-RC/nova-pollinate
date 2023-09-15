@@ -15,12 +15,12 @@ import yaml
 
 from flask import abort
 from flask import Blueprint
+from flask import current_app
 from flask import json
 from flask import request
 from oslo_log import log as logging
 from werkzeug.exceptions import HTTPException
 
-from pollinate import utils
 
 LOG = logging.getLogger(__name__)
 
@@ -58,11 +58,13 @@ def pollinate():
         cloud_config = {}
 
         # Cycle through our providers
-        for provider in utils.get_providers(context):
+        providers = current_app.providers
+        LOG.debug('Running with providers: %s' % providers)
+        for provider in providers:
             try:
                 # Run the provider
                 LOG.debug('Running provider: %s' % provider.name)
-                output = provider.run()
+                output = provider().run(context)
                 LOG.debug('Provider %s output: %s' % (provider.name, output))
                 if output:
                     # Strip out any cloud-init config for processing later

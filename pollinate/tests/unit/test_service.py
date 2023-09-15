@@ -23,7 +23,7 @@ class TestService(base.TestCase):
         with self.app.test_client() as client:
             response = client.post('/',
                 content_type='application/json',
-                data=json.dumps(fakes.PROJECT_DATA),
+                data=json.dumps(fakes.NOVA_VENDORDATA_CONTEXT),
                 headers={'X-Identity-Status': 'Confirmed'})
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.json, {})
@@ -32,7 +32,7 @@ class TestService(base.TestCase):
         with self.app.test_client() as client:
             response = client.post('/',
                 content_type='application/json',
-                data=json.dumps(fakes.PROJECT_DATA))
+                data=json.dumps(fakes.NOVA_VENDORDATA_CONTEXT))
             self.assertEqual(response.status_code, 401)
 
     def test_service_no_data(self):

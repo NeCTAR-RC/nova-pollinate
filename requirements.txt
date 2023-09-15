@@ -1,6 +1,4 @@
 pbr
-python-glanceclient
-python-keystoneclient
 keystoneauth1
 keystonemiddleware
 oslo.middleware
@@ -8,4 +6,8 @@ oslo.config
 oslo.context
 oslo.log
 python-dotenv
+python-glanceclient
+python-keystoneclient
+python-novaclient
 Flask
+hvac

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
@@ -12,8 +11,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import setuptools
+from pollinate.tests.unit import base
 
-setuptools.setup(
-    setup_requires=['pbr>=2.0.0', 'setuptools>=17.1'],
-    pbr=True)
+
+class TestSecrets(base.TestCase):
+
+    def test_secrets(self):
+        pass

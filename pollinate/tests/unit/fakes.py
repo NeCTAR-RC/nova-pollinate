@@ -14,7 +14,7 @@
 import copy
 
 
-PROJECT_DATA = {
+NOVA_VENDORDATA_CONTEXT = {
     'project-id': 'fake-project-id',
     'instance-id': 'fake-instance-id',
     'image-id': 'fake-image-id',
@@ -33,6 +33,36 @@ class FakeProject(object):
         self.id = id
         self.name = name
         self.enabled = enabled
+
+    def to_dict(self):
+        return copy.copy(self.__dict__)
+
+
+class FakeImage(object):
+
+    def __init__(self, id='dummy', name='MyImage',
+                 enabled=True, **kwargs):
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+        self.id = id
+        self.name = name
+        self.enabled = enabled
+
+    def to_dict(self):
+        return copy.copy(self.__dict__)
+
+
+class FakeInstance(object):
+
+    def __init__(self, id='dummy', name='MyServer',
+                 host='foo', hypervisor_hostname='foo.bar.baz', **kwargs):
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+        self.id = id
+        self.name = name
+        setattr(self, 'OS-EXT-SRV-ATTR:host', host)
+        setattr(self, 'OS-EXT-SRV-ATTR:hypervisor_hostname',
+                hypervisor_hostname)
 
     def to_dict(self):
         return copy.copy(self.__dict__)
