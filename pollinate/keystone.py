@@ -22,7 +22,7 @@ from oslo_log import log as logging
 LOG = logging.getLogger(__name__)
 
 REQUEST_CONTEXT_ENV = 'oslo_context'
-_NOAUTH_PATHS = ['/healthcheck']
+_NOAUTH_PATHS = ['/healthcheck', '/test']
 
 
 class KeystoneSession(object):

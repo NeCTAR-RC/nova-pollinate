@@ -102,6 +102,6 @@ OS_TOKEN=$(openstack token issue -c id -f value)
 curl -X POST -H "X-Auth-Token: $OS_TOKEN" \
     -H "HTTP_X_IDENTITY_STATUS: Confirmed" \
     -H "Content-Type: application/json" \
-    --data '{"project-id": "c64856ec10154662a7fce6e0a36be242"}' \
+    --data '{"project-id": "c64856ec10154662a7fce6e0a36be242", "image-id": "47446046-f6ce-404e-a591-d72310fac1bf", "instance-id": "68347e42-b5b1-4e25-a541-a39a0ebb6b34"}' \
     http://localhost:8612/
 ```

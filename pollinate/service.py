@@ -18,6 +18,7 @@ from flask import Blueprint
 from flask import current_app
 from flask import json
 from flask import request
+from hvac import exceptions as vault_exc
 from oslo_log import log as logging
 from werkzeug.exceptions import HTTPException
 
@@ -95,3 +96,15 @@ def pollinate():
         # Catch any other exceptions
         LOG.warning(e, exc_info=True)
         abort(500, e)
+
+
+@bp.route('/test', methods=['GET'])
+def test():
+    try:
+        current_app.secrets.get_secrets()
+        result = {'OK': 'Success'}
+    except vault_exc.Forbidden:
+        result = {'Error': 'Failed to get secrets'}
+    except Exception:
+        result = {'Error': 'Unknown error'}
+    return json.jsonify(result)
