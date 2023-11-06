@@ -6,6 +6,7 @@ oslo.config
 oslo.context
 oslo.log
 python-dotenv
+python-cinderclient
 python-glanceclient
 python-keystoneclient
 python-novaclient

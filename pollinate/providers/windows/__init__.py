@@ -22,6 +22,8 @@ from pollinate.providers import PollinateProvider
 
 LOG = logging.getLogger(__name__)
 
+TRAIT = 'trait:CUSTOM_NECTAR_WINDOWS'
+
 
 class WindowsProductKeyProvider(PollinateProvider):
 
@@ -31,21 +33,37 @@ class WindowsProductKeyProvider(PollinateProvider):
         ks_session = current_app.ks_session
         nova_client = clients.get_nova_client(ks_session)
         glance_client = clients.get_glance_client(ks_session)
+        cinder_client = clients.get_cinder_client(ks_session)
 
-        try:
-            image_id = context['image-id']
-            image = glance_client.images.get(image_id)
-        except glance_exc.HTTPNotFound:
-            LOG.warning('Image %s not found', image_id)
+        instance_id = context['instance-id']
+        image_id = context['image-id']
+
+        instance = nova_client.servers.get(instance_id)
+        has_trait = False
+
+        # Require the Windows trait on the image or volume to release the
+        # product key
+        if image_id:
+            try:
+                image = glance_client.images.get(image_id)
+                if hasattr(image, TRAIT):
+                    has_trait = True
+            except glance_exc.HTTPNotFound:
+                LOG.warning('Image %s not found', image_id)
+                return
+        else:
+            volumes_attached = getattr(
+                instance, 'os-extended-volumes:volumes_attached')
+            for volume in volumes_attached:
+                v = cinder_client.volumes.get(volume['id'])
+                if v.bootable and TRAIT in v.volume_image_metadata:
+                    has_trait = True
+                    break
+
+        if not has_trait:
+            LOG.info('Trait not found for instance %s', instance_id)
             return
 
-        # Require the Windows trait on the image to release the product key
-        if not image.get('trait:CUSTOM_NECTAR_WINDOWS'):
-            LOG.warning('CUSTOM_NECTAR_WINDOWS trait not set on image %s (%s)',
-                      image.id, image.name)
-            return
-
-        instance = nova_client.servers.get(context['instance-id'])
         # Use hypervisor name, but uppercase
         hostname = getattr(instance, 'OS-EXT-SRV-ATTR:host').upper()
 

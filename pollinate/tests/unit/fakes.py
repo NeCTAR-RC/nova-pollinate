@@ -48,6 +48,26 @@ class FakeImage(object):
         self.name = name
         self.enabled = enabled
 
+    def set(self, k, v):
+        setattr(self, k, v)
+
+    def to_dict(self):
+        return copy.copy(self.__dict__)
+
+
+class FakeVolume(object):
+
+    def __init__(self, id='dummy', name='MyVolume',
+                 enabled=True, **kwargs):
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+        self.id = id
+        self.name = name
+        self.enabled = enabled
+
+    def set(self, k, v):
+        setattr(self, k, v)
+
     def to_dict(self):
         return copy.copy(self.__dict__)
 
@@ -63,6 +83,9 @@ class FakeInstance(object):
         setattr(self, 'OS-EXT-SRV-ATTR:host', host)
         setattr(self, 'OS-EXT-SRV-ATTR:hypervisor_hostname',
                 hypervisor_hostname)
+
+    def set(self, k, v):
+        setattr(self, k, v)
 
     def to_dict(self):
         return copy.copy(self.__dict__)
