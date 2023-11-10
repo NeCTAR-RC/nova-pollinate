@@ -16,7 +16,7 @@ import yaml
 from flask import abort
 from flask import Blueprint
 from flask import current_app
-from flask import json
+from flask import jsonify
 from flask import request
 from hvac import exceptions as vault_exc
 from oslo_log import log as logging
@@ -85,8 +85,7 @@ def pollinate():
             cloud_yaml = yaml.dump(cloud_config)
             result['cloud-init'] = '#cloud-config\n' + cloud_yaml
 
-        resp = json.jsonify(result)
-        return resp
+        return jsonify(result)
 
     except HTTPException:
         # Simply return any raised aborts
@@ -100,11 +99,14 @@ def pollinate():
 
 @bp.route('/test', methods=['GET'])
 def test():
+    result = {'Error': 'Unknown error'}
     try:
         current_app.secrets.get_secrets()
         result = {'OK': 'Success'}
-    except vault_exc.Forbidden:
+        return jsonify(result)
+    except vault_exc.Forbidden as e:
+        LOG.error('Vault error: %s', e)
         result = {'Error': 'Failed to get secrets'}
-    except Exception:
-        result = {'Error': 'Unknown error'}
-    return json.jsonify(result)
+    except Exception as e:
+        LOG.exception(e)
+    return jsonify(result), 500
