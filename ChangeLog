@@ -4,7 +4,7 @@ CHANGES
 * Add missing gunicorn pip install
 * Fix docker-run for virtualenv
 * Add unit tests, fix vgpu logic and upgrade container build
-* Fix typo for nova pollinate vgpu image propery name
+* Fix typo for nova pollinate vgpu image property name
 * Require vgpu image property for license
 * Fix compute host handling and increase logging
 * Fix JSON

@@ -15,8 +15,8 @@
 from datetime import datetime
 from datetime import timedelta
 
-from hvac import Client
 from hvac.api.auth_methods import Kubernetes
+from hvac import Client
 
 from oslo_config import cfg
 from oslo_log import log as logging

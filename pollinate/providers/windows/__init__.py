@@ -12,8 +12,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import glanceclient.exc as glance_exc
 from flask import current_app
+import glanceclient.exc as glance_exc
 from oslo_log import log as logging
 
 from pollinate import clients
