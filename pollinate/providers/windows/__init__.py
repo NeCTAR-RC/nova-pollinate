@@ -26,7 +26,6 @@ TRAIT = 'trait:CUSTOM_NECTAR_WINDOWS'
 
 
 class WindowsProductKeyProvider(PollinateProvider):
-
     name = 'windows_product_key'
 
     def run(self, context):
@@ -53,7 +52,8 @@ class WindowsProductKeyProvider(PollinateProvider):
                 return
         else:
             volumes_attached = getattr(
-                instance, 'os-extended-volumes:volumes_attached')
+                instance, 'os-extended-volumes:volumes_attached'
+            )
             for volume in volumes_attached:
                 v = cinder_client.volumes.get(volume['id'])
                 if v.bootable and TRAIT in v.volume_image_metadata:
@@ -68,10 +68,13 @@ class WindowsProductKeyProvider(PollinateProvider):
         hostname = getattr(instance, 'OS-EXT-SRV-ATTR:host').upper()
 
         try:
-            vault_key = 'WINDOWS_PRODUCT_KEY_{}'.format(hostname.upper())
+            vault_key = f'WINDOWS_PRODUCT_KEY_{hostname.upper()}'
             product_key = current_app.secrets.get(vault_key)
-            LOG.info('Instance %s requested product key for %s',
-                     context['instance-id'], hostname)
+            LOG.info(
+                'Instance %s requested product key for %s',
+                context['instance-id'],
+                hostname,
+            )
             return {'product_key': product_key}
         except KeyError:
             LOG.warning('Windows product key for %s not found!', hostname)

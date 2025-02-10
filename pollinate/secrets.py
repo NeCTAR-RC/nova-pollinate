@@ -28,8 +28,7 @@ LOG = logging.getLogger(__name__)
 K8S_TOKEN_PATH = '/var/run/secrets/kubernetes.io/serviceaccount/token'
 
 
-class PollinateSecrets():
-
+class PollinateSecrets:
     def __init__(self):
         self.secrets_fetched = None
         self.secrets = None
@@ -39,32 +38,36 @@ class PollinateSecrets():
         """Authenticate to vault and return a client"""
         # Config provided token (development)
         if CONF.vault.token:
-            LOG.debug('Logging in to Vault at: %s with local token',
-                      CONF.vault.url)
-            return Client(
-                url=CONF.vault.url, token=CONF.vault.token)
+            LOG.debug(
+                'Logging in to Vault at: %s with local token', CONF.vault.url
+            )
+            return Client(url=CONF.vault.url, token=CONF.vault.token)
         # Kubernetes token (production)
         elif CONF.vault.role:
-            LOG.debug('Logging in to Vault at: %s with K8s token',
-                      CONF.vault.url)
+            LOG.debug(
+                'Logging in to Vault at: %s with K8s token', CONF.vault.url
+            )
             client = Client(url=CONF.vault.url)
             if not self.k8s_token:
-                with open(K8S_TOKEN_PATH, 'r') as f:
+                with open(K8S_TOKEN_PATH) as f:
                     self.k8s_token = f.read()
             Kubernetes(client.adapter).login(
-                role=CONF.vault.role, jwt=self.k8s_token)
+                role=CONF.vault.role, jwt=self.k8s_token
+            )
             return client
         else:
             raise Exception('No Vault method configured')
 
     def get_secrets(self):
-        if not self.secrets_fetched or \
-                self.secrets_fetched < datetime.now() - timedelta(seconds=60):
+        if (
+            not self.secrets_fetched
+            or self.secrets_fetched < datetime.now() - timedelta(seconds=60)
+        ):
             LOG.debug('Fetching secrets from Vault')
             client = self._get_vault_client()
             self.secrets = client.secrets.kv.read_secret_version(
-                path=CONF.vault.path,
-                raise_on_deleted_version=True)
+                path=CONF.vault.path, raise_on_deleted_version=True
+            )
             self.secrets_fetched = datetime.now()
         return self.secrets['data']['data']
 

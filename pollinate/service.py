@@ -32,8 +32,10 @@ bp = Blueprint('service', __name__)
 def pollinate():
     identity_status = request.headers.get('X-Identity-Status')
     if not identity_status:
-        msg = ('X-Identity-Status header not found in request. '
-               'Is Keystone auth middleware configured?')
+        msg = (
+            'X-Identity-Status header not found in request. '
+            'Is Keystone auth middleware configured?'
+        )
         LOG.error(msg)
         abort(401, msg)
     if identity_status != 'Confirmed':
@@ -48,7 +50,7 @@ def pollinate():
             abort(400, msg)
 
         context = request.json
-        LOG.debug('Nova input data: %s' % context)
+        LOG.debug(f'Nova input data: {context}')
 
         if 'project-id' not in context:
             msg = 'Project ID value not provided by Nova'
@@ -60,13 +62,13 @@ def pollinate():
 
         # Cycle through our providers
         providers = current_app.providers
-        LOG.debug('Running with providers: %s' % providers)
+        LOG.debug(f'Running with providers: {providers}')
         for provider in providers:
             try:
                 # Run the provider
-                LOG.debug('Running provider: %s' % provider.name)
+                LOG.debug(f'Running provider: {provider.name}')
                 output = provider().run(context)
-                LOG.debug('Provider %s output: %s' % (provider.name, output))
+                LOG.debug(f'Provider {provider.name} output: {output}')
                 if output:
                     # Strip out any cloud-init config for processing later
                     if 'cloud-config' in output:
@@ -75,8 +77,9 @@ def pollinate():
                     # Prefix data with provider name
                     result.update({provider.name: output})
             except Exception:
-                LOG.warning("Failed to run provider: %s", provider.name,
-                            exc_info=True)
+                LOG.warning(
+                    "Failed to run provider: %s", provider.name, exc_info=True
+                )
 
         # cloud-init config needs to a valid cloud-init YAML document
         # under the key 'cloud-init'. For details, see the the docs at:

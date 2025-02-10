@@ -19,13 +19,11 @@ from pollinate.providers import PollinateProvider
 
 
 class KeystoneProvider(PollinateProvider):
-
     name = 'project_info'
 
     def run(self, context):
         ks_session = current_app.ks_session
         keystone_client = clients.get_keystone_client(ks_session)
         project = keystone_client.projects.get(context['project-id'])
-        resp = {'project_id': project.id,
-                'project_name': project.name}
+        resp = {'project_id': project.id, 'project_name': project.name}
         return resp

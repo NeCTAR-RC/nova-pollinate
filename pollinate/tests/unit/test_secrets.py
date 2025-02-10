@@ -15,6 +15,5 @@ from pollinate.tests.unit import base
 
 
 class TestSecrets(base.TestCase):
-
     def test_secrets(self):
         pass

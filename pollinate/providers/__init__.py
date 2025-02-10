@@ -26,8 +26,7 @@ class PollinateProviderException(Exception):
     pass
 
 
-class PollinateProvider(object):
-
+class PollinateProvider:
     @classmethod
     def load(cls):
         providers = []

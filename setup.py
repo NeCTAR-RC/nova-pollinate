@@ -14,6 +14,4 @@
 
 import setuptools
 
-setuptools.setup(
-    setup_requires=['pbr>=2.0.0', 'setuptools>=17.1'],
-    pbr=True)
+setuptools.setup(setup_requires=['pbr>=2.0.0', 'setuptools>=17.1'], pbr=True)

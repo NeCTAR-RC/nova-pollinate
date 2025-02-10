@@ -23,10 +23,9 @@ from pollinate.tests.unit import fakes
 @mock.patch.object(secrets.PollinateSecrets, 'get')
 @mock.patch('pollinate.clients.get_keystone_client')
 class TestNvidiaGPUProvider(base.TestCase):
-
     def setUp(self):
         self.override_config('providers', 'nvidia_vgpu')
-        super(TestNvidiaGPUProvider, self).setUp()
+        super().setUp()
 
     def test_nvidia_gpu_token_ok(self, mock_keystone_client, mock_secrets_get):
         with self.app.test_client() as client:
@@ -34,43 +33,52 @@ class TestNvidiaGPUProvider(base.TestCase):
             ks = mock_keystone_client.return_value
             ks.projects.get.return_value = fakes.FakeProject()
 
-            response = client.post('/',
+            response = client.post(
+                '/',
                 content_type='application/json',
                 data=json.dumps(fakes.NOVA_VENDORDATA_CONTEXT),
-                headers={'X-Identity-Status': 'Confirmed'})
+                headers={'X-Identity-Status': 'Confirmed'},
+            )
 
             resp_data = {'nvidia_vgpu': {'license_token': 'foo'}}
             self.assertEqual(response.json, resp_data)
             self.assertEqual(response.status_code, 200)
 
-    def test_nvidia_gpu_token_not_found(self, mock_keystone_client,
-                                        mock_secrets_get):
+    def test_nvidia_gpu_token_not_found(
+        self, mock_keystone_client, mock_secrets_get
+    ):
         with self.app.test_client() as client:
             mock_secrets_get.side_effect = KeyError()
             ks = mock_keystone_client.return_value
             ks.projects.get.return_value = fakes.FakeProject()
 
-            response = client.post('/',
+            response = client.post(
+                '/',
                 content_type='application/json',
                 data=json.dumps(fakes.NOVA_VENDORDATA_CONTEXT),
-                headers={'X-Identity-Status': 'Confirmed'})
+                headers={'X-Identity-Status': 'Confirmed'},
+            )
 
             # TODO(andy): Work out how to test for the thrown Exception
             # License value for LICENSE_TOKEN_ARDC not found!
             self.assertEqual(response.json, {})
             self.assertEqual(response.status_code, 200)
 
-    def test_nvidia_gpu_token_monash(self, mock_keystone_client,
-                                     mock_secrets_get):
+    def test_nvidia_gpu_token_monash(
+        self, mock_keystone_client, mock_secrets_get
+    ):
         with self.app.test_client() as client:
             mock_secrets_get.return_value = 'baz'
             ks = mock_keystone_client.return_value
             ks.projects.get.return_value = fakes.FakeProject(
-                compute_zones='monash-02')
-            response = client.post('/',
+                compute_zones='monash-02'
+            )
+            response = client.post(
+                '/',
                 content_type='application/json',
                 data=json.dumps(fakes.NOVA_VENDORDATA_CONTEXT),
-                headers={'X-Identity-Status': 'Confirmed'})
+                headers={'X-Identity-Status': 'Confirmed'},
+            )
 
             resp_data = {'nvidia_vgpu': {'license_token': 'baz'}}
             self.assertEqual(response.json, resp_data)

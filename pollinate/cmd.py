@@ -21,7 +21,6 @@ CONF = cfg.CONF
 
 
 def main():
-
     application = app.create_app()
     application.run(host=CONF.flask.host, port=CONF.flask.port)
 

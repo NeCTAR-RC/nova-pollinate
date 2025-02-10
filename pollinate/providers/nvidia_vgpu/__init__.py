@@ -23,15 +23,13 @@ LOG = logging.getLogger(__name__)
 
 
 class NvidiaVGPUProvider(PollinateProvider):
-
     name = 'nvidia_vgpu'
 
     def get_license(self, name):
-        vault_key = 'LICENSE_TOKEN_{}'.format(name.upper())
+        vault_key = f'LICENSE_TOKEN_{name.upper()}'
         value = current_app.secrets.get(vault_key)
         if not value:
-            raise Exception(
-                'License value for {} not found!'.format(vault_key))
+            raise Exception(f'License value for {vault_key} not found!')
         return value
 
     def run(self, context):

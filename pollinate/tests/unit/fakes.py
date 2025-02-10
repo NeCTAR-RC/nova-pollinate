@@ -24,10 +24,8 @@ NOVA_VENDORDATA_CONTEXT = {
 }
 
 
-class FakeProject(object):
-
-    def __init__(self, id='dummy', name='MyProject',
-                 enabled=True, **kwargs):
+class FakeProject:
+    def __init__(self, id='dummy', name='MyProject', enabled=True, **kwargs):
         for k, v in kwargs.items():
             setattr(self, k, v)
         self.id = id
@@ -38,27 +36,8 @@ class FakeProject(object):
         return copy.copy(self.__dict__)
 
 
-class FakeImage(object):
-
-    def __init__(self, id='dummy', name='MyImage',
-                 enabled=True, **kwargs):
-        for k, v in kwargs.items():
-            setattr(self, k, v)
-        self.id = id
-        self.name = name
-        self.enabled = enabled
-
-    def set(self, k, v):
-        setattr(self, k, v)
-
-    def to_dict(self):
-        return copy.copy(self.__dict__)
-
-
-class FakeVolume(object):
-
-    def __init__(self, id='dummy', name='MyVolume',
-                 enabled=True, **kwargs):
+class FakeImage:
+    def __init__(self, id='dummy', name='MyImage', enabled=True, **kwargs):
         for k, v in kwargs.items():
             setattr(self, k, v)
         self.id = id
@@ -72,17 +51,38 @@ class FakeVolume(object):
         return copy.copy(self.__dict__)
 
 
-class FakeInstance(object):
+class FakeVolume:
+    def __init__(self, id='dummy', name='MyVolume', enabled=True, **kwargs):
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+        self.id = id
+        self.name = name
+        self.enabled = enabled
 
-    def __init__(self, id='dummy', name='MyServer',
-                 host='foo', hypervisor_hostname='foo.bar.baz', **kwargs):
+    def set(self, k, v):
+        setattr(self, k, v)
+
+    def to_dict(self):
+        return copy.copy(self.__dict__)
+
+
+class FakeInstance:
+    def __init__(
+        self,
+        id='dummy',
+        name='MyServer',
+        host='foo',
+        hypervisor_hostname='foo.bar.baz',
+        **kwargs,
+    ):
         for k, v in kwargs.items():
             setattr(self, k, v)
         self.id = id
         self.name = name
         setattr(self, 'OS-EXT-SRV-ATTR:host', host)
-        setattr(self, 'OS-EXT-SRV-ATTR:hypervisor_hostname',
-                hypervisor_hostname)
+        setattr(
+            self, 'OS-EXT-SRV-ATTR:hypervisor_hostname', hypervisor_hostname
+        )
 
     def set(self, k, v):
         setattr(self, k, v)

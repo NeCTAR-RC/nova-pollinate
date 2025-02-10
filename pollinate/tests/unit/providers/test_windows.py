@@ -25,14 +25,17 @@ from pollinate.tests.unit import fakes
 @mock.patch('pollinate.clients.get_glance_client')
 @mock.patch('pollinate.clients.get_nova_client')
 class TestWindowsProductKeyProvider(base.TestCase):
-
     def setUp(self):
         self.override_config('providers', 'windows_product_key')
-        super(TestWindowsProductKeyProvider, self).setUp()
+        super().setUp()
 
     def test_windows_product_key_fromimage(
-            self, mock_nova_client, mock_glance_client, mock_cinder_client,
-            mock_secrets_get):
+        self,
+        mock_nova_client,
+        mock_glance_client,
+        mock_cinder_client,
+        mock_secrets_get,
+    ):
         with self.app.test_client() as client:
             mock_secrets_get.return_value = 'foo'
             gc = mock_glance_client.return_value
@@ -46,13 +49,17 @@ class TestWindowsProductKeyProvider(base.TestCase):
             logger = 'pollinate.providers.windows'
             level = 'INFO'
             with self.assertLogs(logger=logger, level=level) as cm:
-                response = client.post('/',
+                response = client.post(
+                    '/',
                     content_type='application/json',
                     data=json.dumps(fakes.NOVA_VENDORDATA_CONTEXT),
-                    headers={'X-Identity-Status': 'Confirmed'})
+                    headers={'X-Identity-Status': 'Confirmed'},
+                )
 
-            log_message = (f"{level}:{logger}:Instance fake-instance-id "
-                "requested product key for FOO")
+            log_message = (
+                f"{level}:{logger}:Instance fake-instance-id "
+                "requested product key for FOO"
+            )
             self.assertEqual(cm.output, [log_message])
 
             resp_data = {'windows_product_key': {'product_key': 'foo'}}
@@ -60,8 +67,12 @@ class TestWindowsProductKeyProvider(base.TestCase):
             self.assertEqual(response.status_code, 200)
 
     def test_windows_product_key_volume(
-            self, mock_nova_client, mock_glance_client, mock_cinder_client,
-            mock_secrets_get):
+        self,
+        mock_nova_client,
+        mock_glance_client,
+        mock_cinder_client,
+        mock_secrets_get,
+    ):
         with self.app.test_client() as client:
             mock_secrets_get.return_value = 'foo'
             cc = mock_cinder_client.return_value
@@ -81,20 +92,25 @@ class TestWindowsProductKeyProvider(base.TestCase):
 
             # Set up instance
             instance = fakes.FakeInstance()
-            instance.set('os-extended-volumes:volumes_attached',
-                         [{'id': 'dummy'}])
+            instance.set(
+                'os-extended-volumes:volumes_attached', [{'id': 'dummy'}]
+            )
             nc.servers.get.return_value = instance
 
             logger = 'pollinate.providers.windows'
             level = 'INFO'
             with self.assertLogs(logger=logger, level=level) as cm:
-                response = client.post('/',
+                response = client.post(
+                    '/',
                     content_type='application/json',
                     data=json.dumps(context),
-                    headers={'X-Identity-Status': 'Confirmed'})
+                    headers={'X-Identity-Status': 'Confirmed'},
+                )
 
-            log_message = (f"{level}:{logger}:Instance fake-instance-id "
-                "requested product key for FOO")
+            log_message = (
+                f"{level}:{logger}:Instance fake-instance-id "
+                "requested product key for FOO"
+            )
             self.assertEqual(cm.output, [log_message])
 
             resp_data = {'windows_product_key': {'product_key': 'foo'}}
@@ -102,8 +118,12 @@ class TestWindowsProductKeyProvider(base.TestCase):
             self.assertEqual(response.status_code, 200)
 
     def test_windows_product_key_not_found(
-            self, mock_nova_client, mock_glance_client, mock_cinder_client,
-            mock_secrets_get):
+        self,
+        mock_nova_client,
+        mock_glance_client,
+        mock_cinder_client,
+        mock_secrets_get,
+    ):
         with self.app.test_client() as client:
             mock_secrets_get.return_value = 'foo'
             gc = mock_glance_client.return_value
@@ -115,13 +135,17 @@ class TestWindowsProductKeyProvider(base.TestCase):
             logger = 'pollinate.providers.windows'
             level = 'INFO'
             with self.assertLogs(logger=logger, level=level) as cm:
-                response = client.post('/',
+                response = client.post(
+                    '/',
                     content_type='application/json',
                     data=json.dumps(fakes.NOVA_VENDORDATA_CONTEXT),
-                    headers={'X-Identity-Status': 'Confirmed'})
+                    headers={'X-Identity-Status': 'Confirmed'},
+                )
 
-            log_message = (f"{level}:{logger}:Trait not found for instance "
-                "fake-instance-id")
+            log_message = (
+                f"{level}:{logger}:Trait not found for instance "
+                "fake-instance-id"
+            )
             self.assertEqual(cm.output, [log_message])
 
             resp_data = {}  # Empty

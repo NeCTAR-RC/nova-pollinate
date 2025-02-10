@@ -25,8 +25,7 @@ REQUEST_CONTEXT_ENV = 'oslo_context'
 _NOAUTH_PATHS = ['/healthcheck', '/test']
 
 
-class KeystoneSession(object):
-
+class KeystoneSession:
     def __init__(self, section='service_auth'):
         self._session = None
         self._auth = None
@@ -43,22 +42,23 @@ class KeystoneSession(object):
         if not self._session:
             LOG.debug('Getting Keystone session')
             self._session = ks_loading.load_session_from_conf_options(
-                cfg.CONF, self.section, auth=self.get_auth())
+                cfg.CONF, self.section, auth=self.get_auth()
+            )
 
         return self._session
 
     def get_auth(self):
         if not self._auth:
             self._auth = ks_loading.load_auth_from_conf_options(
-                cfg.CONF, self.section)
+                cfg.CONF, self.section
+            )
         return self._auth
 
     def get_service_user_id(self):
         return self.get_auth().get_user_id(self.get_session())
 
 
-class KeystoneContext(object):
-
+class KeystoneContext:
     def __init__(self, app):
         self.app = app
 
@@ -85,8 +85,11 @@ class SkippingAuthProtocol(auth_token.AuthProtocol):
     def process_request(self, request):
         path = request.path
         if path in _NOAUTH_PATHS:
-            LOG.debug('Request path is %s and it does not require keystone '
-                      'authentication', path)
+            LOG.debug(
+                'Request path is %s and it does not require keystone '
+                'authentication',
+                path,
+            )
             return None  # return NONE to reach actual logic
 
         return super().process_request(request)

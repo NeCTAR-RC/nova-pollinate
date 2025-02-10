@@ -25,11 +25,9 @@ def log_request(req, resp, data=None):
     """Log a web request and response"""
     log = []
     log.append(req.remote_addr or 'unknown')
-    log.append('"{} {}{}"'.format(req.method.upper(),
-                                  req.script_name,
-                                  req.path_info))
+    log.append(f'"{req.method.upper()} {req.script_name}{req.path_info}"')
     if resp:
-        log.append('status: {}'.format(resp.status_code))
+        log.append(f'status: {resp.status_code}')
 
     if data:
         log.append('instance-id: {}'.format(data.get('instance-id')))

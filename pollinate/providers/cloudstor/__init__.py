@@ -18,7 +18,6 @@ from pollinate.providers import PollinateProvider
 
 
 class CloudStorProvider(PollinateProvider):
-
     name = 'cloudstor'
 
     def run(self, context):
@@ -31,8 +30,9 @@ class CloudStorProvider(PollinateProvider):
         """
         creds = self.keystone_client.credentials.list(type='cloudstor')
         try:
-            data = next(c.blob for c in creds
-                        if c.project_id == context['project-id'])
+            data = next(
+                c.blob for c in creds if c.project_id == context['project-id']
+            )
             return json.loads(data)
         except StopIteration:
             pass  # no creds found

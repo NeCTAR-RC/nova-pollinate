@@ -21,17 +21,18 @@ CONF = cfg.CONF
 
 
 class TestCase(testtools.TestCase):
-
     def setUp(self):
-        super(TestCase, self).setUp()
+        super().setUp()
         self.override_config('auth_strategy', 'noauth')
         self.app = self.create_app()
 
     def create_app(self):
-        return app.create_app({
-            'DEBUG': False,  # Set to True for test debugging
-            'TESTING': True,
-        })
+        return app.create_app(
+            {
+                'DEBUG': False,  # Set to True for test debugging
+                'TESTING': True,
+            }
+        )
 
     def override_config(self, name, override, group=None):
         """Cleanly override CONF variables."""

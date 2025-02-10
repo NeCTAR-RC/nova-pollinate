@@ -24,39 +24,29 @@ LOG = logging.getLogger(__name__)
 
 
 default_opts = [
-    cfg.StrOpt('auth_strategy', default='keystone',
-               choices=['noauth',
-                        'keystone',
-                        'testing'],
-               help="The auth strategy for API requests."),
-    cfg.StrOpt('host',
-               default=socket.gethostname()),
-    cfg.ListOpt('providers',
-                default=[],
-                help='Providers to load'),
+    cfg.StrOpt(
+        'auth_strategy',
+        default='keystone',
+        choices=['noauth', 'keystone', 'testing'],
+        help="The auth strategy for API requests.",
+    ),
+    cfg.StrOpt('host', default=socket.gethostname()),
+    cfg.ListOpt('providers', default=[], help='Providers to load'),
 ]
 
 vault_opts = [
-    cfg.StrOpt('url',
-               help='Vault URL'),
-    cfg.StrOpt('role',
-               help='Vault role. Should be k8s for Kubernetes'),
-    cfg.StrOpt('token',
-               help='Vault token. Should be provided for token auth'),
-    cfg.StrOpt('path',
-               help='Vault path'),
+    cfg.StrOpt('url', help='Vault URL'),
+    cfg.StrOpt('role', help='Vault role. Should be k8s for Kubernetes'),
+    cfg.StrOpt('token', help='Vault token. Should be provided for token auth'),
+    cfg.StrOpt('path', help='Vault path'),
 ]
 
 flask_opts = [
-    cfg.StrOpt('secret_key',
-               help='Flask secret key',
-               secret=True),
-    cfg.StrOpt('host',
-               help='The host or IP address to bind to',
-               default='0.0.0.0'),
-    cfg.IntOpt('port',
-               help='The port to listen on',
-               default=8612),
+    cfg.StrOpt('secret_key', help='Flask secret key', secret=True),
+    cfg.StrOpt(
+        'host', help='The host or IP address to bind to', default='0.0.0.0'
+    ),
+    cfg.IntOpt('port', help='The port to listen on', default=8612),
 ]
 
 cfg.CONF.register_opts(flask_opts, group='flask')
