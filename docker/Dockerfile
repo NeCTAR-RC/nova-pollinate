@@ -13,6 +13,7 @@ COPY . /app
 RUN apt-get update && \
     DEBIAN_FRONTEND="noninteractive" apt-get install -y --no-install-recommends build-essential gcc && \
     python -m venv /venv && \
+    /venv/bin/python -m pip install -c https://releases.openstack.org/constraints/upper/2024.1 setuptools && \
     /venv/bin/python -m pip install -c https://releases.openstack.org/constraints/upper/2024.1 -r /app/requirements.txt && \
     /venv/bin/python -m pip install -c https://releases.openstack.org/constraints/upper/2024.1 gunicorn && \
     /venv/bin/python -m pip install -c https://releases.openstack.org/constraints/upper/2024.1 .
