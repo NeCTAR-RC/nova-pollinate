@@ -73,6 +73,7 @@ class FakeInstance:
         name='MyServer',
         host='foo',
         hypervisor_hostname='foo.bar.baz',
+        availability_zone='nova',
         **kwargs,
     ):
         for k, v in kwargs.items():
@@ -83,6 +84,7 @@ class FakeInstance:
         setattr(
             self, 'OS-EXT-SRV-ATTR:hypervisor_hostname', hypervisor_hostname
         )
+        setattr(self, 'OS-EXT-AZ:availability_zone', availability_zone)
 
     def set(self, k, v):
         setattr(self, k, v)
