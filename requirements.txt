@@ -10,5 +10,6 @@ python-cinderclient
 python-glanceclient
 python-keystoneclient
 python-novaclient
-Flask
+Flask>=3,<4
+Werkzeug>=3,<4
 hvac

@@ -21,6 +21,8 @@ from oslo_log import log as logging
 from oslo_middleware import healthcheck
 from oslo_middleware import request_id
 
+from werkzeug.middleware import dispatcher
+
 from pollinate import config
 from pollinate import keystone
 from pollinate import providers
@@ -63,8 +65,18 @@ def create_app(test_config=None, conf_file=None, init_config=True):
     except OSError:
         pass
 
-    app.wsgi_app = healthcheck.Healthcheck(app.wsgi_app)
     app.wsgi_app = request_id.RequestId(app.wsgi_app)
+
+    # Mount the oslo.middleware healthcheck app at /healthcheck via werkzeug's
+    # dispatcher. Wrapping the whole app in the healthcheck middleware is
+    # incompatible with Werkzeug 3 (it empties the response body for every
+    # request), so we route only /healthcheck requests to the healthcheck app.
+    hc_app = healthcheck.Healthcheck.app_factory(
+        {}, oslo_config_project='pollinate'
+    )
+    app.wsgi_app = dispatcher.DispatcherMiddleware(
+        app.wsgi_app, {'/healthcheck': hc_app}
+    )
 
     if CONF.auth_strategy == 'keystone':
         app.wsgi_app = keystone.KeystoneContext(app.wsgi_app)

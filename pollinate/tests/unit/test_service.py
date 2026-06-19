@@ -57,3 +57,12 @@ class TestService(base.TestCase):
                 headers={'X-Identity-Status': 'Confirmed'},
             )
             self.assertEqual(response.status_code, 400)
+
+    def test_healthcheck(self):
+        # /healthcheck is served by oslo.middleware.healthcheck mounted via
+        # werkzeug's dispatcher. A 200 is all the liveness probe needs; the
+        # body is not asserted as the middleware does not populate it under
+        # Werkzeug 3.
+        with self.app.test_client() as client:
+            response = client.get('/healthcheck')
+            self.assertEqual(response.status_code, 200)

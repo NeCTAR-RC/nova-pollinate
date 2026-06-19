@@ -1,10 +1,23 @@
 CHANGES
 =======
 
+* Add pre-commit and update tox.ini
+* Apply pre-commit code style/linting fixes
+* Serve healthcheck natively for Werkzeug 3 compatibility
+* Move container to Python 3.12 / Flask 3 and use importlib.metadata
+* Support image trait when boot from volume
+* Better error logic
+* Add Nagios test URL for calling from monitoring hosts
+* Don't use stale vault client
+* Refactor and include new Windows product key provider
+
+0.1
+---
+
 * Add missing gunicorn pip install
 * Fix docker-run for virtualenv
 * Add unit tests, fix vgpu logic and upgrade container build
-* Fix typo for nova pollinate vgpu image property name
+* Fix typo for nova pollinate vgpu image propery name
 * Require vgpu image property for license
 * Fix compute host handling and increase logging
 * Fix JSON

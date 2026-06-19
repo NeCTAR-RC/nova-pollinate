@@ -12,7 +12,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from pkg_resources import iter_entry_points
+from importlib import metadata
 
 from oslo_config import cfg
 from oslo_log import log as logging
@@ -20,6 +20,8 @@ from oslo_log import log as logging
 
 CONF = cfg.CONF
 LOG = logging.getLogger(__name__)
+
+PROVIDERS_GROUP = 'pollinate.providers'
 
 
 class PollinateProviderException(Exception):
@@ -30,7 +32,7 @@ class PollinateProvider:
     @classmethod
     def load(cls):
         providers = []
-        entry_points = iter_entry_points(group='pollinate.providers')
+        entry_points = metadata.entry_points(group=PROVIDERS_GROUP)
         LOG.debug('Found entrypoints: %s', entry_points)
         for entry_point in entry_points:
             if entry_point.name in CONF.providers:
