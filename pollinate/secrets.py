@@ -41,13 +41,17 @@ class PollinateSecrets:
             LOG.debug(
                 'Logging in to Vault at: %s with local token', CONF.vault.url
             )
-            return Client(url=CONF.vault.url, token=CONF.vault.token)
+            return Client(
+                url=CONF.vault.url,
+                token=CONF.vault.token,
+                timeout=CONF.vault.timeout,
+            )
         # Kubernetes token (production)
         elif CONF.vault.role:
             LOG.debug(
                 'Logging in to Vault at: %s with K8s token', CONF.vault.url
             )
-            client = Client(url=CONF.vault.url)
+            client = Client(url=CONF.vault.url, timeout=CONF.vault.timeout)
             if not self.k8s_token:
                 with open(K8S_TOKEN_PATH) as f:
                     self.k8s_token = f.read()

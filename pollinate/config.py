@@ -32,6 +32,13 @@ default_opts = [
     ),
     cfg.StrOpt('host', default=socket.gethostname()),
     cfg.ListOpt('providers', default=[], help='Providers to load'),
+    cfg.IntOpt(
+        'api_timeout',
+        default=10,
+        help='Timeout in seconds for outbound OpenStack API calls. Bounds '
+        'each request so a slow or hung endpoint cannot tie up a worker '
+        'thread indefinitely.',
+    ),
 ]
 
 vault_opts = [
@@ -39,6 +46,11 @@ vault_opts = [
     cfg.StrOpt('role', help='Vault role. Should be k8s for Kubernetes'),
     cfg.StrOpt('token', help='Vault token. Should be provided for token auth'),
     cfg.StrOpt('path', help='Vault path'),
+    cfg.IntOpt(
+        'timeout',
+        default=10,
+        help='Timeout in seconds for requests to Vault.',
+    ),
 ]
 
 flask_opts = [

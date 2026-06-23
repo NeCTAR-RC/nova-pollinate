@@ -44,6 +44,11 @@ class KeystoneSession:
             self._session = ks_loading.load_session_from_conf_options(
                 cfg.CONF, self.section, auth=self.get_auth()
             )
+            # Bound outbound API calls so a slow or hung endpoint can't tie
+            # up a worker thread indefinitely. Respect an explicit per-section
+            # timeout from config if one is set, otherwise apply our default.
+            if self._session.timeout is None:
+                self._session.timeout = cfg.CONF.api_timeout
 
         return self._session
 
