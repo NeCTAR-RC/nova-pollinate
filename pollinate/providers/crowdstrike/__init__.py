@@ -70,7 +70,6 @@ import logging
 
 from flask import current_app
 
-from pollinate import clients
 from pollinate.providers import PollinateProvider
 
 LOG = logging.getLogger(__name__)
@@ -127,11 +126,8 @@ class CrowdStrikeProvider(PollinateProvider):
         Returns:
             Dict with the CrowdStrike config, or an empty dict to skip
         """
-        ks_session = current_app.ks_session
-        nova_client = clients.get_nova_client(ks_session)
-
         instance_id = context['instance-id']
-        instance = nova_client.servers.get(instance_id)
+        instance = self.get_instance(context)
         az = getattr(instance, 'OS-EXT-AZ:availability_zone', None)
 
         if not az:

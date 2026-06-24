@@ -14,8 +14,12 @@
 
 from importlib import metadata
 
+from flask import current_app
+from flask import g
 from oslo_config import cfg
 from oslo_log import log as logging
+
+from pollinate import clients
 
 
 CONF = cfg.CONF
@@ -41,3 +45,16 @@ class PollinateProvider:
 
     def run(self):
         raise PollinateProviderException('Not Implemented')
+
+    def get_instance(self, context):
+        """Return the Nova server for this request, fetched once and shared.
+
+        Several providers need the instance's server object. The lookup is
+        memoised on the Flask request global so they don't each issue an
+        identical ``servers.get()`` call. ``g`` is request-scoped, so the
+        cached instance never leaks across requests.
+        """
+        if 'instance' not in g:
+            nova_client = clients.get_nova_client(current_app.ks_session)
+            g.instance = nova_client.servers.get(context['instance-id'])
+        return g.instance

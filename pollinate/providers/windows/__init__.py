@@ -30,14 +30,13 @@ class WindowsProductKeyProvider(PollinateProvider):
 
     def run(self, context):
         ks_session = current_app.ks_session
-        nova_client = clients.get_nova_client(ks_session)
         glance_client = clients.get_glance_client(ks_session)
         cinder_client = clients.get_cinder_client(ks_session)
 
         instance_id = context['instance-id']
         image_id = context['image-id']
 
-        instance = nova_client.servers.get(instance_id)
+        instance = self.get_instance(context)
         has_trait = False
 
         # Require the Windows trait on the image or volume to release the
