@@ -69,6 +69,68 @@ class TestCrowdStrikeProvider(base.TestCase):
             }
             self.assertEqual(response.json, resp_data)
 
+    def test_crowdstrike_with_provisioning_token_and_tags(
+        self, mock_nova_client, mock_secrets_get
+    ):
+        """Optional provisioning token and tags are passed through."""
+        with self.app.test_client() as client:
+            self._set_az(mock_nova_client, 'melbourne-qh2')
+
+            def vault_get(key):
+                vault_secrets = {
+                    'CROWDSTRIKE_MELBOURNE-QH2_CID': 'MELBOURNE-CID-123',
+                    'CROWDSTRIKE_MELBOURNE-QH2_PROVISIONING_TOKEN': 'TOKEN-789',
+                    'CROWDSTRIKE_MELBOURNE-QH2_TAGS': 'nectar,melbourne',
+                    'CROWDSTRIKE_MELBOURNE-QH2_INSTALLER_URL_DEB': 'https://example.com/falcon.deb',
+                }
+                if key not in vault_secrets:
+                    raise KeyError('Not found')
+                return vault_secrets[key]
+
+            mock_secrets_get.side_effect = vault_get
+
+            response = client.post(
+                '/',
+                content_type='application/json',
+                data=json.dumps(fakes.NOVA_VENDORDATA_CONTEXT),
+                headers={'X-Identity-Status': 'Confirmed'},
+            )
+
+            self.assertEqual(response.status_code, 200)
+            cs_data = response.json['crowdstrike']
+            self.assertEqual(cs_data['provisioning_token'], 'TOKEN-789')
+            self.assertEqual(cs_data['tags'], 'nectar,melbourne')
+
+    def test_crowdstrike_token_and_tags_omitted_when_absent(
+        self, mock_nova_client, mock_secrets_get
+    ):
+        """No provisioning token or tags keys: omit them from the config."""
+        with self.app.test_client() as client:
+            self._set_az(mock_nova_client, 'melbourne-qh2')
+
+            def vault_get(key):
+                vault_secrets = {
+                    'CROWDSTRIKE_MELBOURNE-QH2_CID': 'MELBOURNE-CID-123',
+                    'CROWDSTRIKE_MELBOURNE-QH2_INSTALLER_URL_DEB': 'https://example.com/falcon.deb',
+                }
+                if key not in vault_secrets:
+                    raise KeyError('Not found')
+                return vault_secrets[key]
+
+            mock_secrets_get.side_effect = vault_get
+
+            response = client.post(
+                '/',
+                content_type='application/json',
+                data=json.dumps(fakes.NOVA_VENDORDATA_CONTEXT),
+                headers={'X-Identity-Status': 'Confirmed'},
+            )
+
+            self.assertEqual(response.status_code, 200)
+            cs_data = response.json['crowdstrike']
+            self.assertNotIn('provisioning_token', cs_data)
+            self.assertNotIn('tags', cs_data)
+
     def test_crowdstrike_no_config_for_az(
         self, mock_nova_client, mock_secrets_get
     ):

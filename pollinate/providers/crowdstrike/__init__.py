@@ -31,6 +31,8 @@ All secrets are AZ-specific. The AZ name is normalised by upper-casing it,
 preserving hyphens (e.g. ``melbourne-qh2`` -> ``MELBOURNE-QH2``).
 
 - ``CROWDSTRIKE_<AZ>_CID``: CID for the availability zone
+- ``CROWDSTRIKE_<AZ>_PROVISIONING_TOKEN``: optional provisioning token
+- ``CROWDSTRIKE_<AZ>_TAGS``: optional sensor grouping tags
 - ``CROWDSTRIKE_<AZ>_INSTALLER_URL_DEB``: URL for the Debian/Ubuntu package
 - ``CROWDSTRIKE_<AZ>_INSTALLER_URL_RPM``: URL for the RHEL/SUSE package
 - ``CROWDSTRIKE_<AZ>_ENABLED``: optional per-AZ opt-out (default ``true``)
@@ -58,6 +60,8 @@ dynamic target name (``nectar``), so the guest sees it at
 
     {
       "cid": "XXXXXXXXXXXXXXXXXXXXXXXXXXXX-XX",
+      "provisioning_token": "XXXXXX",
+      "tags": "example,group",
       "installer_url": "https://example.com/falcon-sensor.deb",
       "installer_url_deb": "https://example.com/falcon-sensor.deb",
       "installer_url_rpm": "https://example.com/falcon-sensor.rpm",
@@ -176,6 +180,13 @@ class CrowdStrikeProvider(PollinateProvider):
             default=False,
         )
 
+        # Optional sensor registration extras. Both are AZ-specific and only
+        # included when configured in Vault.
+        provisioning_token = self._get_secret(
+            f'CROWDSTRIKE_{site}_PROVISIONING_TOKEN'
+        )
+        tags = self._get_secret(f'CROWDSTRIKE_{site}_TAGS')
+
         # Provide both package-type variants so the cloud-init module can pick
         # the right one for the guest OS family. installer_url is kept as a
         # generic fallback for backwards compatibility.
@@ -185,6 +196,10 @@ class CrowdStrikeProvider(PollinateProvider):
             'enabled': True,
             'fail_if_missing': fail_if_missing,
         }
+        if provisioning_token:
+            config['provisioning_token'] = provisioning_token
+        if tags:
+            config['tags'] = tags
         if deb_url:
             config['installer_url_deb'] = deb_url
         if rpm_url:
