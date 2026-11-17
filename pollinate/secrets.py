@@ -17,6 +17,7 @@ from datetime import timedelta
 
 from hvac.api.auth_methods import Kubernetes
 from hvac import Client
+from hvac import exceptions as hvac_exc
 
 from oslo_config import cfg
 from oslo_log import log as logging
@@ -26,12 +27,12 @@ LOG = logging.getLogger(__name__)
 
 
 K8S_TOKEN_PATH = '/var/run/secrets/kubernetes.io/serviceaccount/token'
+CACHE_TTL = timedelta(seconds=60)
 
 
 class PollinateSecrets:
     def __init__(self):
-        self.secrets_fetched = None
-        self.secrets = None
+        self._cache = {}  # path -> (fetched_at, data)
         self.k8s_token = None
 
     def _get_vault_client(self):
@@ -62,20 +63,23 @@ class PollinateSecrets:
         else:
             raise Exception('No Vault method configured')
 
-    def get_secrets(self):
-        if (
-            not self.secrets_fetched
-            or self.secrets_fetched < datetime.now() - timedelta(seconds=60)
-        ):
-            LOG.debug('Fetching secrets from Vault')
+    def get_secrets(self, path=None):
+        """Return the data at a Vault path (default [vault] path), cached."""
+        path = path or CONF.vault.path
+        cached = self._cache.get(path)
+        if not cached or cached[0] < datetime.now() - CACHE_TTL:
+            LOG.debug('Fetching secrets from Vault path %s', path)
             client = self._get_vault_client()
-            self.secrets = client.secrets.kv.read_secret_version(
-                path=CONF.vault.path, raise_on_deleted_version=True
-            )
-            self.secrets_fetched = datetime.now()
-        return self.secrets['data']['data']
+            data = client.secrets.kv.read_secret_version(
+                path=path, raise_on_deleted_version=True
+            )['data']['data']
+            cached = self._cache[path] = (datetime.now(), data)
+        return cached[1]
 
-    def get(self, name):
+    def get(self, name, path=None):
+        """Return one secret; raises KeyError if the path or key is missing."""
         LOG.debug('Searching for secret: %s', name)
-        secrets = self.get_secrets()
-        return secrets[name]  # Raise exception if not found
+        try:
+            return self.get_secrets(path)[name]
+        except hvac_exc.InvalidPath:
+            raise KeyError(path)

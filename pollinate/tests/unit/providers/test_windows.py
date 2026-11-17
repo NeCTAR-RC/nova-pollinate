@@ -11,6 +11,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import copy
 import json
 
 from unittest import mock
@@ -20,6 +21,10 @@ from pollinate.tests.unit import base
 from pollinate.tests.unit import fakes
 
 
+LOGGER = 'pollinate.providers.windows'
+TRAIT = 'trait:CUSTOM_NECTAR_WINDOWS'
+
+
 @mock.patch.object(secrets.PollinateSecrets, 'get')
 @mock.patch('pollinate.clients.get_cinder_client')
 @mock.patch('pollinate.clients.get_glance_client')
@@ -27,127 +32,151 @@ from pollinate.tests.unit import fakes
 class TestWindowsProductKeyProvider(base.TestCase):
     def setUp(self):
         self.override_config('providers', 'windows_product_key')
+        self.override_config('path', 'k8s/nova-pollinate/secrets', 'vault')
         super().setUp()
 
-    def test_windows_product_key_fromimage(
-        self,
-        mock_nova_client,
-        mock_glance_client,
-        mock_cinder_client,
-        mock_secrets_get,
-    ):
+    def _post(self, context=None):
         with self.app.test_client() as client:
-            mock_secrets_get.return_value = 'foo'
-            gc = mock_glance_client.return_value
-            nc = mock_nova_client.return_value
-            image = fakes.FakeImage()
-            # Set our required trait
-            image.set('trait:CUSTOM_NECTAR_WINDOWS', 'required')
-            gc.images.get.return_value = image
-            nc.servers.get.return_value = fakes.FakeInstance()
-
-            logger = 'pollinate.providers.windows'
-            level = 'INFO'
-            with self.assertLogs(logger=logger, level=level) as cm:
-                response = client.post(
-                    '/',
-                    content_type='application/json',
-                    data=json.dumps(fakes.NOVA_VENDORDATA_CONTEXT),
-                    headers={'X-Identity-Status': 'Confirmed'},
-                )
-
-            log_message = (
-                f"{level}:{logger}:Instance fake-instance-id "
-                "requested product key for FOO"
+            return client.post(
+                '/',
+                content_type='application/json',
+                data=json.dumps(context or fakes.NOVA_VENDORDATA_CONTEXT),
+                headers={'X-Identity-Status': 'Confirmed'},
             )
-            self.assertEqual(cm.output, [log_message])
 
-            resp_data = {'windows_product_key': {'product_key': 'foo'}}
-            self.assertEqual(response.json, resp_data)
-            self.assertEqual(response.status_code, 200)
+    def _windows_image(self, **props):
+        image = fakes.FakeImage()
+        image.set(TRAIT, 'required')
+        for k, v in props.items():
+            image.set(k, v)
+        return image
 
-    def test_windows_product_key_volume(
-        self,
-        mock_nova_client,
-        mock_glance_client,
-        mock_cinder_client,
-        mock_secrets_get,
+    def test_from_image(self, mock_nova, mock_glance, mock_cinder, mock_get):
+        mock_get.return_value = 'foo'
+        mock_glance.return_value.images.get.return_value = self._windows_image(
+            os_version='2025'
+        )
+        mock_nova.return_value.servers.get.return_value = fakes.FakeInstance(
+            availability_zone='ardc-syd-1'
+        )
+
+        with self.assertLogs(logger=LOGGER, level='INFO') as cm:
+            response = self._post()
+
+        mock_get.assert_called_once_with(
+            'ardc-syd-1', path='k8s/nova-pollinate/windows/2025'
+        )
+        self.assertEqual(
+            cm.output,
+            [
+                f'INFO:{LOGGER}:Instance fake-instance-id requested '
+                'Windows 2025 product key for zone ardc-syd-1'
+            ],
+        )
+        self.assertEqual(
+            response.json,
+            {
+                'windows_product_key': {
+                    'product_key': 'foo',
+                    'os_version': '2025',
+                }
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_from_volume(self, mock_nova, mock_glance, mock_cinder, mock_get):
+        mock_get.return_value = 'foo'
+        context = copy.deepcopy(fakes.NOVA_VENDORDATA_CONTEXT)
+        context['image-id'] = ''  # Boot from volume
+
+        volume = fakes.FakeVolume()
+        volume.set('bootable', True)
+        volume.set(
+            'volume_image_metadata', {TRAIT: 'required', 'os_version': '2022'}
+        )
+        mock_cinder.return_value.volumes.get.return_value = volume
+
+        instance = fakes.FakeInstance(availability_zone='QRIScloud')
+        instance.set('os-extended-volumes:volumes_attached', [{'id': 'v'}])
+        mock_nova.return_value.servers.get.return_value = instance
+
+        response = self._post(context)
+
+        mock_get.assert_called_once_with(
+            'QRIScloud', path='k8s/nova-pollinate/windows/2022'
+        )
+        self.assertEqual(
+            response.json,
+            {
+                'windows_product_key': {
+                    'product_key': 'foo',
+                    'os_version': '2022',
+                }
+            },
+        )
+
+    def test_no_trait(self, mock_nova, mock_glance, mock_cinder, mock_get):
+        mock_glance.return_value.images.get.return_value = fakes.FakeImage()
+        mock_nova.return_value.servers.get.return_value = fakes.FakeInstance()
+
+        with self.assertLogs(logger=LOGGER, level='INFO') as cm:
+            response = self._post()
+
+        self.assertEqual(
+            cm.output,
+            [f'INFO:{LOGGER}:Trait not found for instance fake-instance-id'],
+        )
+        mock_get.assert_not_called()
+        self.assertEqual(response.json, {})
+
+    def test_missing_os_version(
+        self, mock_nova, mock_glance, mock_cinder, mock_get
     ):
-        with self.app.test_client() as client:
-            mock_secrets_get.return_value = 'foo'
-            cc = mock_cinder_client.return_value
-            nc = mock_nova_client.return_value
+        mock_glance.return_value.images.get.return_value = (
+            self._windows_image()
+        )
+        mock_nova.return_value.servers.get.return_value = fakes.FakeInstance()
 
-            # Unset image id from context
-            context = fakes.NOVA_VENDORDATA_CONTEXT
-            context['image-id'] = ''  # No image
+        with self.assertLogs(logger=LOGGER, level='WARNING'):
+            response = self._post()
 
-            # Set volume
-            volume = fakes.FakeVolume()
-            volume_image_metadata = {}
-            volume_image_metadata['trait:CUSTOM_NECTAR_WINDOWS'] = 'required'
-            volume.set('volume_image_metadata', volume_image_metadata)
-            volume.set('bootable', True)
-            cc.volumes.get.return_value = volume
+        mock_get.assert_not_called()
+        self.assertEqual(response.json, {})
 
-            # Set up instance
-            instance = fakes.FakeInstance()
-            instance.set(
-                'os-extended-volumes:volumes_attached', [{'id': 'dummy'}]
-            )
-            nc.servers.get.return_value = instance
-
-            logger = 'pollinate.providers.windows'
-            level = 'INFO'
-            with self.assertLogs(logger=logger, level=level) as cm:
-                response = client.post(
-                    '/',
-                    content_type='application/json',
-                    data=json.dumps(context),
-                    headers={'X-Identity-Status': 'Confirmed'},
-                )
-
-            log_message = (
-                f"{level}:{logger}:Instance fake-instance-id "
-                "requested product key for FOO"
-            )
-            self.assertEqual(cm.output, [log_message])
-
-            resp_data = {'windows_product_key': {'product_key': 'foo'}}
-            self.assertEqual(response.json, resp_data)
-            self.assertEqual(response.status_code, 200)
-
-    def test_windows_product_key_not_found(
-        self,
-        mock_nova_client,
-        mock_glance_client,
-        mock_cinder_client,
-        mock_secrets_get,
+    def test_invalid_os_version(
+        self, mock_nova, mock_glance, mock_cinder, mock_get
     ):
-        with self.app.test_client() as client:
-            mock_secrets_get.return_value = 'foo'
-            gc = mock_glance_client.return_value
-            nc = mock_nova_client.return_value
-            # No trait set on image
-            gc.images.get.return_value = fakes.FakeImage()
-            nc.servers.get.return_value = fakes.FakeInstance()
+        mock_glance.return_value.images.get.return_value = self._windows_image(
+            os_version='../secrets'
+        )
+        mock_nova.return_value.servers.get.return_value = fakes.FakeInstance()
 
-            logger = 'pollinate.providers.windows'
-            level = 'INFO'
-            with self.assertLogs(logger=logger, level=level) as cm:
-                response = client.post(
-                    '/',
-                    content_type='application/json',
-                    data=json.dumps(fakes.NOVA_VENDORDATA_CONTEXT),
-                    headers={'X-Identity-Status': 'Confirmed'},
-                )
+        with self.assertLogs(logger=LOGGER, level='WARNING'):
+            response = self._post()
 
-            log_message = (
-                f"{level}:{logger}:Trait not found for instance "
-                "fake-instance-id"
-            )
-            self.assertEqual(cm.output, [log_message])
+        mock_get.assert_not_called()
+        self.assertEqual(response.json, {})
 
-            resp_data = {}  # Empty
-            self.assertEqual(response.json, resp_data)
-            self.assertEqual(response.status_code, 200)
+    def test_no_key_for_zone(
+        self, mock_nova, mock_glance, mock_cinder, mock_get
+    ):
+        mock_get.side_effect = KeyError('monash-01')
+        mock_glance.return_value.images.get.return_value = self._windows_image(
+            os_version='2022'
+        )
+        mock_nova.return_value.servers.get.return_value = fakes.FakeInstance(
+            availability_zone='monash-01'
+        )
+
+        with self.assertLogs(logger=LOGGER, level='INFO') as cm:
+            response = self._post()
+
+        self.assertEqual(
+            cm.output,
+            [
+                f'INFO:{LOGGER}:No Windows 2022 product key for zone '
+                'monash-01 (instance fake-instance-id)'
+            ],
+        )
+        self.assertEqual(response.json, {})
+        self.assertEqual(response.status_code, 200)
