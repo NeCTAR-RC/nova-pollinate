@@ -2,7 +2,7 @@
 # See https://docs.docker.com/engine/userguide/eng-image/multistage-build/
 # Requires Docker v17.05
 # Base image for build and runtime
-FROM python:3.12-slim-trixie AS build
+FROM python:3.14-slim-trixie AS build
 
 ARG VERSION
 ENV PBR_VERSION=$VERSION
@@ -19,7 +19,7 @@ RUN apt-get update && \
     /venv/bin/python -m pip install -c https://releases.openstack.org/constraints/upper/2026.1 .
 
 # Release build
-FROM python:3.12-slim-trixie
+FROM python:3.14-slim-trixie
 
 COPY --from=build /venv /venv
 COPY --from=build /app/docker/docker-run.sh /
